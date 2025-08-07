@@ -114,10 +114,10 @@ const AddMachine = ({ onSuccess, onCancel }) => {
                 }}
             >
                 {/* Basic Information */}
-                <Title level={5}>
+                {/* <Title level={5}>
                     <InfoCircleOutlined style={{ marginRight: '8px' }} />
                     Thông Tin Cơ Bản
-                </Title>
+                </Title> */}
 
                 <Row gutter={[16, 16]}>
                     <Col span={12}>

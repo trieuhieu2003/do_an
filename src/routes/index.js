@@ -14,7 +14,7 @@ export const routes = [
   {
     key: 'dashboard',
     path: '/',
-    label: 'Dashboard',
+    label: 'Bảng điều khiển',
     icon: <BarChartOutlined />,
     component: ManufacturingDashboard,
     exact: true
@@ -22,7 +22,7 @@ export const routes = [
   {
     key: 'machines',
     path: '/machines',
-    label: 'Machines',
+    label: 'Máy móc',
     icon: <RobotOutlined />,
     component: Machine,
     exact: true
@@ -30,7 +30,7 @@ export const routes = [
   {
     key: 'analytics',
     path: '/analytics',
-    label: 'Analytics',
+    label: 'Phân tích dữ liệu',
     icon: <BarChartOutlined />,
     component: Analytics,
     exact: true
@@ -38,7 +38,7 @@ export const routes = [
   {
     key: 'alerts',
     path: '/alerts',
-    label: 'Alerts',
+    label: 'Cảnh báo',
     icon: <AlertOutlined />,
     component: Alerts,
     exact: true
@@ -54,7 +54,7 @@ export const routes = [
   {
     key: 'users',
     path: '/users',
-    label: 'Users',
+    label: 'Người dùng',
     icon: <TeamOutlined />,
     component: User,
     exact: true

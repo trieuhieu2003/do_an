@@ -29,58 +29,58 @@ const { Title, Text } = Typography;
 const users = [
     {
         name: 'John Smith',
-        title: 'Plant Manager',
+        title: 'Quản lý Nhà máy',
         email: 'john.smith@factory.com',
         role: 'Admin',
-        lastActive: 'Today, 09:42',
-        status: 'Active',
+        lastActive: 'Hôm nay, 09:42',
+        status: 'Hoạt động',
         avatar: 'https://via.placeholder.com/40'
     },
     {
         name: 'Sarah Johnson',
-        title: 'Maintenance Lead',
+        title: 'Trưởng nhóm bảo trì',
         email: 'sarah.j@factory.com',
         role: 'Supervisor',
-        lastActive: 'Yesterday, 16:30',
-        status: 'Active',
+        lastActive: 'Hôm qua, 16:30',
+        status: 'Hoạt động',
         avatar: 'https://via.placeholder.com/40'
     },
     {
         name: 'Michael Chen',
-        title: 'Technician',
+        title: 'Kỹ thuật viên',
         email: 'michael.c@factory.com',
         role: 'Operator',
-        lastActive: '2 days ago',
-        status: 'Active',
+        lastActive: '2 ngày trước',
+        status: 'Hoạt động',
         avatar: 'https://via.placeholder.com/40'
     }
 ];
 
 const roles = [
     {
-        title: 'Administrator',
+        title: 'Quản trị viên',
         permissions: [
-            'Full system access',
-            'User management',
-            'System configuration'
+            'Toàn quyền truy cập hệ thống',
+            'Quản lý người dùng',
+            'Cấu hình hệ thống'
         ]
     },
     {
-        title: 'Supervisor',
+        title: 'Giám sát',
         permissions: [
-            'View all machines',
-            'Acknowledge alerts',
-            'Generate reports'
+            'Xem tất cả máy móc',
+            'Xác nhận cảnh báo',
+            'Tạo báo cáo'
         ],
-        exclusions: ['System configuration']
+        exclusions: ['Cấu hình hệ thống']
     },
     {
-        title: 'Operator',
+        title: 'Người vận hành',
         permissions: [
-            'View assigned machines',
-            'Basic controls'
+            'Xem máy được phân công',
+            'Điều khiển cơ bản'
         ],
-        exclusions: ['Acknowledge alerts', 'Generate reports']
+        exclusions: ['Xác nhận cảnh báo', 'Tạo báo cáo']
     }
 ];
 
@@ -93,7 +93,6 @@ const roleColor = (role) => {
 const UserManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    // Modal handlers
     const showModal = () => {
         setIsModalVisible(true);
     };
@@ -103,24 +102,22 @@ const UserManagement = () => {
     };
 
     const handleEdit = (record) => {
-        message.info(`Edit user: ${record.name}`);
+        message.info(`Chỉnh sửa người dùng: ${record.name}`);
     };
-    
+
     const handleDelete = (record) => {
-        message.success(`Deleted user: ${record.name}`);
+        message.success(`Đã xoá người dùng: ${record.name}`);
     };
 
     const handleUserAdded = (values) => {
         console.log('User added successfully:', values);
         message.success('Người dùng đã được thêm thành công!');
         setIsModalVisible(false);
-        // Here you can add the new user to your data
-        // For example: setUsers([...users, newUser]);
     };
 
     const columns = [
         {
-            title: 'Name',
+            title: 'Họ và Tên',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => (
@@ -140,7 +137,7 @@ const UserManagement = () => {
             render: (text) => <Text type="secondary">{text}</Text>
         },
         {
-            title: 'Role',
+            title: 'Vai trò',
             dataIndex: 'role',
             key: 'role',
             render: (role) => (
@@ -148,13 +145,13 @@ const UserManagement = () => {
             )
         },
         {
-            title: 'Last Active',
+            title: 'Hoạt động gần nhất',
             dataIndex: 'lastActive',
             key: 'lastActive',
             render: (text) => <Text type="secondary">{text}</Text>
         },
         {
-            title: 'Status',
+            title: 'Trạng thái',
             dataIndex: 'status',
             key: 'status',
             render: (status) => (
@@ -162,7 +159,7 @@ const UserManagement = () => {
             )
         },
         {
-            title: 'Actions',
+            title: 'Hành động',
             key: 'actions',
             render: (_, record) => (
                 <Space>
@@ -171,15 +168,15 @@ const UserManagement = () => {
                         size="small"
                         onClick={() => handleEdit(record)}
                     >
-                        Edit
+                        Sửa
                     </Button>
                     <Popconfirm
-                        title="Are you sure to delete this user?"
+                        title="Bạn có chắc muốn xoá người dùng này?"
                         onConfirm={() => handleDelete(record)}
-                        okText="Yes"
-                        cancelText="No"
+                        okText="Có"
+                        cancelText="Không"
                     >
-                        <Button icon={<DeleteOutlined />} size="small" danger>Delete</Button>
+                        <Button icon={<DeleteOutlined />} size="small" danger>Xoá</Button>
                     </Popconfirm>
                 </Space>
             )
@@ -188,15 +185,15 @@ const UserManagement = () => {
 
     return (
         <div style={{ padding: 24, background: '#f0f2f5', minHeight: '100vh' }}>
-            <Title level={2} style={{ marginBottom: 24 }}>User Management & Permissions</Title>
+            <Title level={2} style={{ marginBottom: 24 }}>Quản lý Người dùng & Phân quyền</Title>
             <Card style={{ marginBottom: 32 }}>
                 <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
                     <Col>
-                        <Title level={4} style={{ margin: 0 }}>System Users</Title>
-                        <Text type="secondary">Manage who has access to the system</Text>
+                        <Title level={4} style={{ margin: 0 }}>Danh sách người dùng</Title>
+                        <Text type="secondary">Quản lý quyền truy cập hệ thống</Text>
                     </Col>
                     <Col>
-                        <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Add User</Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Thêm Người dùng</Button>
                     </Col>
                 </Row>
                 <Table
@@ -207,7 +204,7 @@ const UserManagement = () => {
                 />
             </Card>
             <Card>
-                <Title level={4} style={{ marginBottom: 16 }}>Permission Groups</Title>
+                <Title level={4} style={{ marginBottom: 16 }}>Nhóm quyền</Title>
                 <Row gutter={[16, 16]}>
                     {roles.map((role, idx) => (
                         <Col xs={24} md={8} key={idx}>
@@ -252,7 +249,7 @@ const UserManagement = () => {
                 footer={null}
                 destroyOnClose
             >
-                <AddUser 
+                <AddUser
                     onSuccess={handleUserAdded}
                     onCancel={handleCancel}
                 />

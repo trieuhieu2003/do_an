@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Badge, Input, Button, Typography, Space, Dropdown } from 'antd';
+import { Layout, Menu, Avatar, Typography, Space, Dropdown } from 'antd';
 import {
-  BellOutlined,
-  SettingOutlined,
-  BarChartOutlined,
-  RobotOutlined,
-  AlertOutlined,
-  PlayCircleOutlined,
   AppstoreOutlined,
-  TeamOutlined,
-  UserOutlined,
+  KeyOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  KeyOutlined
+  SettingOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { menuItems, getCurrentRouteKey, getRouteByKey } from '../routes';
@@ -25,7 +18,6 @@ const DefaultLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle menu navigation
   const handleMenuClick = ({ key }) => {
     const selectedRoute = getRouteByKey(key);
     if (selectedRoute) {
@@ -33,15 +25,11 @@ const DefaultLayout = ({ children }) => {
     }
   };
 
-  // Handle logout
   const handleLogout = () => {
-    // Add logout logic here
-    console.log('User logged out');
-    // You can add navigation to login page or clear user session
+    console.log('Người dùng đã đăng xuất');
     // navigate('/login');
   };
 
-  // User dropdown menu items
   const userMenuItems = [
     {
       key: 'profile',
@@ -69,17 +57,16 @@ const DefaultLayout = ({ children }) => {
     },
   ];
 
-  // Handle user menu click
   const handleUserMenuClick = ({ key }) => {
     switch (key) {
       case 'profile':
-        console.log('Navigate to profile');
+        console.log('Chuyển đến hồ sơ cá nhân');
         break;
       case 'settings':
-        console.log('Navigate to settings');
+        console.log('Chuyển đến cài đặt tài khoản');
         break;
       case 'password':
-        console.log('Navigate to change password');
+        console.log('Chuyển đến đổi mật khẩu');
         break;
       case 'logout':
         handleLogout();
@@ -90,15 +77,14 @@ const DefaultLayout = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       <Sider collapsible collapsed={!sidebarOpen} onCollapse={() => setSidebarOpen(!sidebarOpen)}>
         <div style={{ display: 'flex', alignItems: 'center', padding: 16 }}>
           <AppstoreOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-          {!sidebarOpen && null}
           {sidebarOpen && (
             <div style={{ marginLeft: 12 }}>
               <Title level={4} style={{ color: 'white', margin: 0 }}>PlantVision</Title>
-              <Text style={{ color: '#bfbfbf' }}>Manufacturing Dashboard</Text>
+              <Text style={{ color: '#bfbfbf' }}>Bảng điều khiển sản xuất</Text>
             </div>
           )}
         </div>
@@ -109,68 +95,49 @@ const DefaultLayout = ({ children }) => {
           onClick={handleMenuClick}
         >
           {menuItems.map(route => (
-            <Menu.Item
-              key={route.key}
-              icon={route.icon}
-            >
+            <Menu.Item key={route.key} icon={route.icon}>
               {route.label}
             </Menu.Item>
           ))}
         </Menu>
-        {sidebarOpen && (
-          <div style={{ padding: 16, borderTop: '1px solid #303030', marginTop: 'auto' }}>
-            <Dropdown
-              menu={{
-                items: userMenuItems,
-                onClick: handleUserMenuClick,
-              }}
-              placement="bottomRight"
-              trigger={['click']}
-            >
-              <div style={{ cursor: 'pointer' }}>
-                <Space>
-                  <Avatar src="https://randomuser.me/api/portraits/men/32.jpg" />
+
+        <div style={{ padding: 16, borderTop: '1px solid #303030', marginTop: 'auto', textAlign: sidebarOpen ? 'start' : 'center' }}>
+          <Dropdown
+            menu={{
+              items: userMenuItems,
+              onClick: handleUserMenuClick,
+            }}
+            placement={sidebarOpen ? 'bottomRight' : 'right'}
+            trigger={['click']}
+          >
+            <div style={{ cursor: 'pointer' }}>
+              <Space direction="horizontal">
+                <Avatar src="https://randomuser.me/api/portraits/men/32.jpg" />
+                {sidebarOpen && (
                   <div>
-                    <Text style={{ color: 'white' }}>John Doe</Text>
+                    <Text style={{ color: 'white' }}>Nguyễn Văn A</Text>
                     <br />
-                    <Text style={{ color: '#bfbfbf', fontSize: 12 }}>Admin</Text>
+                    <Text style={{ color: '#bfbfbf', fontSize: 12 }}>Quản trị viên</Text>
                   </div>
-                </Space>
-              </div>
-            </Dropdown>
-          </div>
-        )}
-        {!sidebarOpen && (
-          <div style={{ padding: 16, borderTop: '1px solid #303030', marginTop: 'auto', textAlign: 'center' }}>
-            <Dropdown
-              menu={{
-                items: userMenuItems,
-                onClick: handleUserMenuClick,
-              }}
-              placement="right"
-              trigger={['click']}
-            >
-              <Avatar 
-                src="https://randomuser.me/api/portraits/men/32.jpg" 
-                style={{ cursor: 'pointer' }}
-              />
-            </Dropdown>
-          </div>
-        )}
+                )}
+              </Space>
+            </div>
+          </Dropdown>
+        </div>
       </Sider>
+
       <Layout>
-        <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={3} style={{ margin: 0 }}>Manufacturing Dashboard</Title>
-          <Space>
-            {/* <Input.Search placeholder="Search..." style={{ width: 200 }} /> */}
-            <Badge count={5}>
-              <Button shape="circle" icon={<BellOutlined />} />
-            </Badge>
-            <Text>Shift: A</Text>
-            <Badge status="success" />
-          </Space>
-        </Header>
-        <Content style={{ margin: 24, overflow: 'auto' }}>
+        {/* Optional Header */}
+        {/* <Header style={{ background: '#fff', padding: 0 }}>Header</Header> */}
+
+        <Content
+          style={{
+            height: '100vh',
+            overflow: 'auto',
+            padding: 16,
+            background: '#f0f2f5'
+          }}
+        >
           {children ? children : <Outlet />}
         </Content>
       </Layout>
@@ -178,4 +145,4 @@ const DefaultLayout = ({ children }) => {
   );
 };
 
-export default DefaultLayout; 
+export default DefaultLayout;
