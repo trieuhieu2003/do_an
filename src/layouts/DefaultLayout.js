@@ -1,31 +1,84 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Avatar, Badge, Input, Button, Typography, Space, Dropdown } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Layout, Menu, Avatar, Typography, Space, Dropdown, message } from 'antd';
 import {
-  BellOutlined,
-  SettingOutlined,
-  BarChartOutlined,
-  RobotOutlined,
-  AlertOutlined,
-  PlayCircleOutlined,
   AppstoreOutlined,
-  TeamOutlined,
-  UserOutlined,
+  KeyOutlined,
   LogoutOutlined,
   ProfileOutlined,
-  KeyOutlined
+  SettingOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { menuItems, getCurrentRouteKey, getRouteByKey } from '../routes';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import userService from '../service/user.service';
 
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB1XAaS8jVlLTvTVzzFyasSA5Zjy3nkJL8",
+  authDomain: "do-an-8c3e4.firebaseapp.com",
+  projectId: "do-an-8c3e4",
+  storageBucket: "do-an-8c3e4.firebasestorage.app",
+  messagingSenderId: "362967619052",
+  appId: "1:362967619052:web:e3a329cc39fb08bc035cc9",
+  measurementId: "G-8HFSLW069S"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 const DefaultLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Handle menu navigation
+  // Check authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setUser(user);
+
+        // Lấy thông tin user từ Firestore
+        try {
+          const userResult = await userService.getUserByUid(user.uid);
+          if (userResult.success) {
+            setUserData(userResult.user);
+          } else {
+            // Nếu user chưa có trong Firestore, tạo mới
+            const newUserResult = await userService.createUser({
+              uid: user.uid,
+              email: user.email,
+              displayName: user.displayName,
+              photoURL: user.photoURL
+            });
+            if (newUserResult.success) {
+              setUserData(newUserResult.user);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+
+        setLoading(false);
+      } else {
+        setUser(null);
+        setUserData(null);
+        setLoading(false);
+        // Redirect to login if not authenticated
+        navigate('/login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
   const handleMenuClick = ({ key }) => {
     const selectedRoute = getRouteByKey(key);
     if (selectedRoute) {
@@ -33,15 +86,36 @@ const DefaultLayout = ({ children }) => {
     }
   };
 
-  // Handle logout
-  const handleLogout = () => {
-    // Add logout logic here
-    console.log('User logged out');
-    // You can add navigation to login page or clear user session
-    // navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      message.success('Đăng xuất thành công!');
+      navigate('/login');
+    } catch (error) {
+      message.error('Đăng xuất thất bại: ' + error.message);
+    }
   };
 
-  // User dropdown menu items
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px'
+      }}>
+        Đang kiểm tra đăng nhập...
+      </div>
+    );
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    return null;
+  }
+
   const userMenuItems = [
     {
       key: 'profile',
@@ -69,17 +143,16 @@ const DefaultLayout = ({ children }) => {
     },
   ];
 
-  // Handle user menu click
   const handleUserMenuClick = ({ key }) => {
     switch (key) {
       case 'profile':
-        console.log('Navigate to profile');
+        console.log('Chuyển đến hồ sơ cá nhân');
         break;
       case 'settings':
-        console.log('Navigate to settings');
+        console.log('Chuyển đến cài đặt tài khoản');
         break;
       case 'password':
-        console.log('Navigate to change password');
+        console.log('Chuyển đến đổi mật khẩu');
         break;
       case 'logout':
         handleLogout();
@@ -90,15 +163,14 @@ const DefaultLayout = ({ children }) => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       <Sider collapsible collapsed={!sidebarOpen} onCollapse={() => setSidebarOpen(!sidebarOpen)}>
         <div style={{ display: 'flex', alignItems: 'center', padding: 16 }}>
           <AppstoreOutlined style={{ fontSize: 32, color: '#1890ff' }} />
-          {!sidebarOpen && null}
           {sidebarOpen && (
             <div style={{ marginLeft: 12 }}>
               <Title level={4} style={{ color: 'white', margin: 0 }}>PlantVision</Title>
-              <Text style={{ color: '#bfbfbf' }}>Manufacturing Dashboard</Text>
+              <Text style={{ color: '#bfbfbf' }}>Bảng điều khiển sản xuất</Text>
             </div>
           )}
         </div>
@@ -109,73 +181,66 @@ const DefaultLayout = ({ children }) => {
           onClick={handleMenuClick}
         >
           {menuItems.map(route => (
-            <Menu.Item
-              key={route.key}
-              icon={route.icon}
-            >
+            <Menu.Item key={route.key} icon={route.icon}>
               {route.label}
             </Menu.Item>
           ))}
         </Menu>
-        {sidebarOpen && (
-          <div style={{ padding: 16, borderTop: '1px solid #303030', marginTop: 'auto' }}>
+      </Sider>
+      <Layout>
+        <Header style={{
+          background: '#fff',
+          padding: '0 24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <div>
+            <Title level={4} style={{ margin: 0, color: '#1890ff' }}>
+              {getRouteByKey(getCurrentRouteKey(location.pathname))?.label || 'Bảng điều khiển'}
+            </Title>
+          </div>
+          <Space>
             <Dropdown
               menu={{
                 items: userMenuItems,
                 onClick: handleUserMenuClick,
               }}
               placement="bottomRight"
-              trigger={['click']}
+              arrow
             >
-              <div style={{ cursor: 'pointer' }}>
-                <Space>
-                  <Avatar src="https://randomuser.me/api/portraits/men/32.jpg" />
-                  <div>
-                    <Text style={{ color: 'white' }}>John Doe</Text>
-                    <br />
-                    <Text style={{ color: '#bfbfbf', fontSize: 12 }}>Admin</Text>
-                  </div>
-                </Space>
-              </div>
+              <Space style={{ cursor: 'pointer', padding: '8px 12px', borderRadius: '6px', }}>
+                <Avatar
+                  size="small"
+                  src={userData?.photoURL}
+                  style={{ backgroundColor: userData?.photoURL ? 'transparent' : '#1890ff' }}
+                  icon={<ProfileOutlined />}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Text strong>{userData?.displayName || user.email}</Text>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    ({userData?.role === 'admin' ? 'Quản trị viên' :
+                      userData?.role === 'manager' ? 'Quản lý' : 'Người dùng'})
+                  </Text>
+                </div>
+              </Space>
             </Dropdown>
-          </div>
-        )}
-        {!sidebarOpen && (
-          <div style={{ padding: 16, borderTop: '1px solid #303030', marginTop: 'auto', textAlign: 'center' }}>
-            <Dropdown
-              menu={{
-                items: userMenuItems,
-                onClick: handleUserMenuClick,
-              }}
-              placement="right"
-              trigger={['click']}
-            >
-              <Avatar 
-                src="https://randomuser.me/api/portraits/men/32.jpg" 
-                style={{ cursor: 'pointer' }}
-              />
-            </Dropdown>
-          </div>
-        )}
-      </Sider>
-      <Layout>
-        <Header style={{ background: '#fff', padding: '0 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={3} style={{ margin: 0 }}>Manufacturing Dashboard</Title>
-          <Space>
-            {/* <Input.Search placeholder="Search..." style={{ width: 200 }} /> */}
-            <Badge count={5}>
-              <Button shape="circle" icon={<BellOutlined />} />
-            </Badge>
-            <Text>Shift: A</Text>
-            <Badge status="success" />
           </Space>
         </Header>
-        <Content style={{ margin: 24, overflow: 'auto' }}>
-          {children ? children : <Outlet />}
+        <Content style={{
+          margin: '24px',
+          // padding: '24px',
+          background: '#fff',
+          borderRadius: '8px',
+          minHeight: 'calc(100vh - 112px)',
+          overflow: 'auto'
+        }}>
+          <Outlet />
         </Content>
       </Layout>
     </Layout>
   );
 };
 
-export default DefaultLayout; 
+export default DefaultLayout;

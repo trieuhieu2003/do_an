@@ -1,0 +1,259 @@
+.login-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    max-width: 450px;
+    width: 100%;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.login-title {
+    color: #1a1a1a !important;
+    margin-bottom: 10px !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-subtitle {
+    font-size: 16px !important;
+    color: #666 !important;
+    line-height: 1.5;
+}
+
+.login-form {
+    margin-bottom: 30px;
+}
+
+.login-input {
+    border-radius: 12px;
+    border: 2px solid #e8e8e8;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.login-input:hover {
+    border-color: #667eea;
+}
+
+.login-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-input .ant-input-prefix {
+    color: #999;
+    margin-right: 8px;
+}
+
+.login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.forgot-password-link {
+    color: #667eea !important;
+    font-weight: 500;
+    padding: 0;
+    height: auto;
+}
+
+.forgot-password-link:hover {
+    color: #764ba2 !important;
+    text-decoration: underline;
+}
+
+.login-button {
+    height: 50px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.social-login-button {
+    height: 50px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    border: 2px solid #e8e8e8;
+    background: white;
+    color: #333;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.social-login-button:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.google-button:hover {
+    border-color: #4285f4;
+    color: #4285f4;
+}
+
+.facebook-button:hover {
+    border-color: #1877f2;
+    color: #1877f2;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.register-link {
+    color: #667eea !important;
+    font-weight: 600;
+    padding: 0;
+    height: auto;
+}
+
+.register-link:hover {
+    color: #764ba2 !important;
+    text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .login-title {
+        font-size: 24px !important;
+    }
+
+    .login-subtitle {
+        font-size: 14px !important;
+    }
+
+    .login-input {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+    .login-button,
+    .social-login-button {
+        height: 45px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 10px;
+    }
+
+    .login-card {
+        padding: 25px 15px;
+    }
+
+    .login-options {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+/* Animation for card entrance */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-card {
+    animation: slideInUp 0.6s ease-out;
+}
+
+/* Custom checkbox styling */
+.ant-checkbox-wrapper .ant-checkbox-checked .ant-checkbox-inner {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.ant-checkbox-wrapper:hover .ant-checkbox-inner {
+    border-color: #667eea;
+}
+
+/* Form label styling */
+.ant-form-item-label>label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+/* Divider styling */
+.ant-divider {
+    color: #999;
+    font-size: 14px;
+    margin: 30px 0;
+}
+
+/* Loading state styling */
+.ant-btn-loading-icon {
+    color: white;
+}
+
+/* Focus states for accessibility */
+.login-input:focus-visible {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Hover effects for social buttons */
+.social-login-button:hover .anticon {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}

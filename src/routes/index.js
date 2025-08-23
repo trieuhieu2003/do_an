@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChartOutlined, RobotOutlined, AlertOutlined, SettingOutlined, TeamOutlined } from '@ant-design/icons';
+import { BarChartOutlined, RobotOutlined, AlertOutlined, SettingOutlined, TeamOutlined, LoginOutlined } from '@ant-design/icons';
 
 // Import pages
 import ManufacturingDashboard from '../pages/Home';
@@ -8,13 +8,23 @@ import Error404 from '../pages/Error404';
 import Analytics from '../pages/Analytics';
 import Alerts from '../pages/Alerts';
 import User from '../pages/User';
+import Login from '../pages/Login';
 
 // Route configuration
 export const routes = [
   {
+    key: 'login',
+    path: '/login',
+    label: 'Đăng nhập',
+    icon: <LoginOutlined />,
+    component: Login,
+    exact: true,
+    public: true // Mark as public route (no authentication required)
+  },
+  {
     key: 'dashboard',
-    path: '/',
-    label: 'Dashboard',
+    path: '/dashboard',
+    label: 'Bảng điều khiển',
     icon: <BarChartOutlined />,
     component: ManufacturingDashboard,
     exact: true
@@ -22,7 +32,7 @@ export const routes = [
   {
     key: 'machines',
     path: '/machines',
-    label: 'Machines',
+    label: 'Máy móc',
     icon: <RobotOutlined />,
     component: Machine,
     exact: true
@@ -30,7 +40,7 @@ export const routes = [
   {
     key: 'analytics',
     path: '/analytics',
-    label: 'Analytics',
+    label: 'Phân tích dữ liệu',
     icon: <BarChartOutlined />,
     component: Analytics,
     exact: true
@@ -38,7 +48,7 @@ export const routes = [
   {
     key: 'alerts',
     path: '/alerts',
-    label: 'Alerts',
+    label: 'Cảnh báo',
     icon: <AlertOutlined />,
     component: Alerts,
     exact: true
@@ -54,15 +64,15 @@ export const routes = [
   {
     key: 'users',
     path: '/users',
-    label: 'Users',
+    label: 'Người dùng',
     icon: <TeamOutlined />,
     component: User,
     exact: true
   },
 ];
 
-// Navigation menu items (filtered to exclude hidden routes)
-export const menuItems = routes.filter(route => !route.hidden);
+// Navigation menu items (filtered to exclude hidden routes and public routes)
+export const menuItems = routes.filter(route => !route.hidden && !route.public);
 
 // Get route by path
 export const getRouteByPath = (path) => {
