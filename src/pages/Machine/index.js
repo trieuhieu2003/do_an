@@ -245,16 +245,15 @@ const MachineDashboard = () => {
             
             message.success(`Máy "${machine.name}" đã được xóa thành công!`);
             
-            // Gửi cảnh báo Telegram
-            alertService.sendMachineAlert('delete', {
-                name: machine.name,
-                machineName: machine.name,
-                id: machine.key,
-                machineCode: machine.id,
-                machineType: machine.machineType,
-                location: machine.location,
-                status: machine.status
-            });
+            // alertService.sendMachineAlert('delete', {
+            //     name: machine.name,
+            //     machineName: machine.name,
+            //     id: machine.key,
+            //     machineCode: machine.id,
+            //     machineType: machine.machineType,
+            //     location: machine.location,
+            //     status: machine.status
+            // }); // tạm ẩn thông báo
         } catch (error) {
             console.error('Error deleting machine:', error);
             
@@ -269,16 +268,15 @@ const MachineDashboard = () => {
                 
                 message.warning('Máy đã được xóa tạm thời (Firebase không khả dụng).');
                 
-                // Gửi cảnh báo Telegram cho fallback
-                alertService.sendMachineAlert('delete', {
-                    name: machine.name,
-                    machineName: machine.name,
-                    id: machine.key,
-                    machineCode: machine.id,
-                    machineType: machine.machineType,
-                    location: machine.location,
-                    status: machine.status
-                });
+                // alertService.sendMachineAlert('delete', {
+                //     name: machine.name,
+                //     machineName: machine.name,
+                //     id: machine.key,
+                //     machineCode: machine.id,
+                //     machineType: machine.machineType,
+                //     location: machine.location,
+                //     status: machine.status
+                // }); // tạm ẩn thông báo
             } catch (localError) {
                 console.error('Error deleting from localStorage:', localError);
                 message.error('Có lỗi xảy ra khi xóa máy!');
@@ -321,8 +319,48 @@ const MachineDashboard = () => {
                 return;
             }
             
-            await temperatureService.initializeTemperatureSimulation(activeMachines);
-            await vibrationService.initializeVibrationSimulation(activeMachines);
+            // Đặt lại nhiệt độ máy đang hoạt động về 25°C trước khi khởi tạo (ghi DB + history)
+            await Promise.all(
+                activeMachines.map(async (machine) => {
+                    await temperatureService.upsertMachineTemperature(machine.id, {
+                        temperature: 25,
+                        status: temperatureService.getTemperatureStatus(25, temperatureService.defaultSettings),
+                        isSimulated: true,
+                        lastUpdated: new Date()
+                    });
+                    await temperatureService.addTemperatureHistory(machine.id, 25);
+                })
+            );
+            setMachineData(prev =>
+                prev.map(m =>
+                    m.status === 'active'
+                        ? { ...m, temperature: 25, temperatureStatus: 'normal', temperatureLastUpdated: new Date() }
+                        : m
+                )
+            );
+            
+            // Đặt lại rung động về 1 mm/s cho máy đang hoạt động (ghi DB + history)
+            await Promise.all(
+                activeMachines.map(async (machine) => {
+                    await vibrationService.upsertMachineVibration(machine.id, {
+                        value: 1,
+                        status: vibrationService.getVibrationStatus(1),
+                        isSimulated: true,
+                        lastUpdated: new Date().toISOString()
+                    });
+                    await vibrationService.addVibrationHistory(machine.id, 1);
+                })
+            );
+            setMachineData(prev =>
+                prev.map(m =>
+                    m.status === 'active'
+                        ? { ...m, vibration: 1, vibrationStatus: 'normal', vibrationLastUpdated: new Date() }
+                        : m
+                )
+            );
+            
+            // await temperatureService.initializeTemperatureSimulation(activeMachines); // tạm tắt giả lập sau reset
+            // await vibrationService.initializeVibrationSimulation(activeMachines);   // tạm tắt giả lập sau reset
             message.success('Đã khởi tạo dữ liệu nhiệt độ & độ rung!');
             loadTemperatureStats();
             loadMachines(); // Reload để hiển thị nhiệt độ mới

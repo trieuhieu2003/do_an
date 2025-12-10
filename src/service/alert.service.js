@@ -19,7 +19,7 @@ class AlertService {
             username: 'Machine Guardian',
             embeds: [
                 {
-                    title: `🚨 Cảnh báo ${alertData.type || 'máy móc'}`,
+                    title: `🚨 ${alertData.type || 'máy móc'}`,
                     description: alertData.description || 'Không có mô tả',
                     color,
                     fields: [
@@ -44,7 +44,7 @@ class AlertService {
         }
     }
 
-//NOTE Khởi tạo chat_id Telegram (dùng lại nếu đã lưu)
+    //NOTE Khởi tạo chat_id Telegram (dùng lại nếu đã lưu)
     async initializeTelegramChatId() {
         // Kiểm tra xem đã có chat_id trong localStorage chưa
         const savedChatId = localStorage.getItem('telegram_chat_id');
@@ -74,7 +74,7 @@ class AlertService {
         try {
             const updatesResponse = await fetch(`${TELEGRAM_API_URL}/getUpdates`);
             const updatesData = await updatesResponse.json();
-            
+
             if (updatesData.ok && updatesData.result && updatesData.result.length > 0) {
                 // Lấy chat_id từ tin nhắn mới nhất
                 const latestUpdate = updatesData.result[updatesData.result.length - 1];
@@ -108,7 +108,7 @@ class AlertService {
         if (!chatId) {
             console.log('Đang lấy chat_id từ Telegram API...');
             chatId = await this.getTelegramChatId();
-            
+
             if (!chatId) {
                 console.warn('Chat ID Telegram chưa được cấu hình. Vui lòng gửi tin nhắn cho bot trước.');
                 return;
@@ -150,7 +150,7 @@ class AlertService {
     async sendMachineTypeAlert(action, machineTypeData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
-        
+
         const message = `
 ${emoji} <b>Cảnh báo: ${actionText} Loại máy</b>
 
@@ -171,11 +171,11 @@ ${machineTypeData.desc ? `📝 <b>Mô tả:</b> ${machineTypeData.desc}` : ''}
     async sendMachineAlert(action, machineData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
-        
-        const statusText = machineData.status === 'active' ? 'Đang hoạt động' : 
-                          machineData.status === 'inactive' ? 'Không hoạt động' : 
-                          machineData.status === 'maintenance' ? 'Bảo trì' : machineData.status || 'N/A';
-        
+
+        const statusText = machineData.status === 'active' ? 'Đang hoạt động' :
+            machineData.status === 'inactive' ? 'Không hoạt động' :
+                machineData.status === 'maintenance' ? 'Bảo trì' : machineData.status || 'N/A';
+
         const message = `
 ${emoji} <b>Cảnh báo: ${actionText} Máy</b>
 
@@ -197,7 +197,7 @@ ${machineData.temperature ? `🌡️ <b>Nhiệt độ:</b> ${machineData.tempera
     async sendMaintenancePlanAlert(action, planData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
-        
+
         const message = `
 ${emoji} <b>Cảnh báo: ${actionText} Kế hoạch bảo trì</b>
 
@@ -216,9 +216,9 @@ ${planData.desc || planData.description ? `📝 <b>Mô tả:</b> ${planData.desc
     async sendTemperatureAlertToTelegram(alertData) {
         const emoji = alertData.status === 'critical' ? '🔥' : '⚠️';
         const statusText = alertData.status === 'critical' ? 'NGUY HIỂM' : 'CẢNH BÁO';
-        
+
         const message = `
-${emoji} <b>🚨 Cảnh báo ${statusText}: Nhiệt độ máy</b>
+${emoji} <b>🚨  ${statusText}: Nhiệt độ máy</b>
 
 🏭 <b>Máy:</b> ${alertData.machineName || 'Chưa rõ'} (${alertData.machineId || 'N/A'})
 🌡️ <b>Nhiệt độ:</b> ${alertData.value || '-'}
@@ -238,9 +238,9 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Nhiệt độ máy</b>
     async sendVibrationAlertToTelegram(alertData) {
         const emoji = alertData.status === 'critical' ? '⚡' : '⚠️';
         const statusText = alertData.status === 'critical' ? 'NGUY HIỂM' : 'CẢNH BÁO';
-        
+
         const message = `
-${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
+${emoji} <b>🚨  ${statusText}: Độ rung máy</b>
 
 🏭 <b>Máy:</b> ${alertData.machineName || 'Chưa rõ'} (${alertData.machineId || 'N/A'})
 📳 <b>Độ rung:</b> ${alertData.value || '-'}
@@ -273,7 +273,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
     //NOTE Lấy cảnh báo theo status
     getAlertsByStatus(status) {
         return getDocs(query(
-            alertsCollectionRef, 
+            alertsCollectionRef,
             where('status', '==', status),
             orderBy('createdAt', 'desc')
         ));
@@ -282,7 +282,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
     //NOTE Lấy cảnh báo chưa acknowledged
     getUnacknowledgedAlerts() {
         return getDocs(query(
-            alertsCollectionRef, 
+            alertsCollectionRef,
             where('acknowledged', '==', false),
             orderBy('createdAt', 'desc')
         ));
@@ -311,7 +311,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             threshold: '80°C',
             acknowledged: false,
             area: machineData.location,
-            description: temperature > 80 
+            description: temperature > 80
                 ? `Nhiệt độ máy ${machineData.name} vượt quá ngưỡng an toàn (${temperature}°C > 80°C)`
                 : `Nhiệt độ máy ${machineData.name} cao hơn bình thường (${temperature}°C)`
         };
@@ -371,7 +371,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             threshold: '50%',
             acknowledged: false,
             area: machineData.location,
-            description: efficiency < 50 
+            description: efficiency < 50
                 ? `Hiệu suất máy ${machineData.name} thấp nghiêm trọng (${efficiency}% < 50%)`
                 : `Hiệu suất máy ${machineData.name} thấp hơn bình thường (${efficiency}%)`
         };

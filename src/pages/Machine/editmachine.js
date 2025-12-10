@@ -142,8 +142,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
             
             await machinesDataService.updateMachine(machineId, updateData);
             
-            // Gửi cảnh báo Telegram
-            alertService.sendMachineAlert('update', { ...updateData, id: machineId });
+            // alertService.sendMachineAlert('update', { ...updateData, id: machineId }); // tạm ẩn thông báo
 
             // Gọi onSuccess với dữ liệu đã xử lý
             if (onSuccess) {

@@ -175,8 +175,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
                     form.resetFields();
                 }, 1000);
 
-                // Gửi cảnh báo Telegram
-                alertService.sendMachineAlert('create', { ...machineData, id: docRef.id });
+                // alertService.sendMachineAlert('create', { ...machineData, id: docRef.id }); // tạm ẩn thông báo
 
                 if (onSuccess) {
                     onSuccess({ ...machineData, id: docRef.id });

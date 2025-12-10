@@ -237,8 +237,7 @@ export default function MachineTypePage() {
       setData((prev) => prev.filter((item) => item.key !== record.key));
       message.success(`Loại máy "${record.name}" đã được xóa!`);
       
-      // Gửi cảnh báo Telegram
-      alertService.sendMachineTypeAlert('delete', record);
+      // alertService.sendMachineTypeAlert('delete', record); // tạm ẩn thông báo
     } catch (error) {
       console.error("Lỗi khi xóa loại máy:", error);
       message.error("Có lỗi xảy ra khi xóa loại máy!");
@@ -308,8 +307,7 @@ export default function MachineTypePage() {
 
         message.success(`Loại máy "${values.name}" đã được cập nhật!`);
         
-        // Gửi cảnh báo Telegram
-        alertService.sendMachineTypeAlert('update', updatedItem);
+        // alertService.sendMachineTypeAlert('update', updatedItem); // tạm ẩn thông báo
         
         handleCancel();
       } catch (error) {
@@ -345,8 +343,7 @@ export default function MachineTypePage() {
 
       message.success(`Loại máy "${values.name}" đã được thêm thành công!`);
       
-      // Gửi cảnh báo Telegram
-      alertService.sendMachineTypeAlert('create', newItem);
+      // alertService.sendMachineTypeAlert('create', newItem); // tạm ẩn thông báo
       
       handleCancel();
     } catch (error) {

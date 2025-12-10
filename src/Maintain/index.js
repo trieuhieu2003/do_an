@@ -303,8 +303,7 @@ export default function MaintenanceCategory() {
       setData((prev) => prev.filter((item) => item.key !== record.key));
       message.success(`Kế hoạch "${record.name}" đã được xóa!`);
       
-      // Gửi cảnh báo Telegram
-      alertService.sendMaintenancePlanAlert('delete', record);
+      // alertService.sendMaintenancePlanAlert('delete', record); // tạm ẩn thông báo
     } catch (error) {
       console.error("Lỗi khi xóa kế hoạch bảo trì:", error);
       message.error("Có lỗi xảy ra khi xóa kế hoạch bảo trì!");
@@ -375,8 +374,7 @@ export default function MaintenanceCategory() {
 
         message.success(`Kế hoạch "${values.name}" đã được cập nhật!`);
         
-        // Gửi cảnh báo Telegram
-        alertService.sendMaintenancePlanAlert('update', updatedItem);
+        // alertService.sendMaintenancePlanAlert('update', updatedItem); // tạm ẩn thông báo
         
         handleCancel();
       } catch (error) {
@@ -411,8 +409,7 @@ export default function MaintenanceCategory() {
 
       message.success(`Kế hoạch "${values.name}" đã được thêm thành công!`);
       
-      // Gửi cảnh báo Telegram
-      alertService.sendMaintenancePlanAlert('create', newItem);
+      // alertService.sendMaintenancePlanAlert('create', newItem); // tạm ẩn thông báo
       
       handleCancel();
     } catch (error) {
