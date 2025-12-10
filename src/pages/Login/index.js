@@ -99,6 +99,11 @@ const Login = () => {
         case 'auth/wrong-password':
           errorMessage = 'Mật khẩu không đúng!';
           break;
+        case 'auth/invalid-credential':
+        case 'auth/invalid-login-credentials':
+          // Các mã lỗi mới của Firebase khi email/mật khẩu sai
+          errorMessage = 'Email hoặc mật khẩu không đúng!';
+          break;
         case 'auth/invalid-email':
           errorMessage = 'Email không hợp lệ!';
           break;
@@ -110,6 +115,19 @@ const Login = () => {
           break;
         default:
           errorMessage = 'Đăng nhập thất bại: ' + error.message;
+      }
+      
+      // Gán lỗi vào form khi thông tin đăng nhập không chính xác
+      if (
+        error.code === 'auth/wrong-password' ||
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/invalid-credential' ||
+        error.code === 'auth/invalid-login-credentials'
+      ) {
+        form.setFields([
+          { name: 'email', errors: [' '] }, // giữ layout, lỗi tổng thể hiển thị bằng message
+          { name: 'password', errors: [errorMessage] }
+        ]);
       }
       
       message.error(errorMessage);
