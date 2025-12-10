@@ -22,9 +22,25 @@ class machinesDataService {
 		return getDoc(machineDoc);
 	}
 
+	addMachine(newMachine) {
+		return addDoc(machinesCollectionRef, {
+			...newMachine,
+			createdAt: new Date(),
+			updatedAt: new Date()
+		});
+	}
+
 	updateMachine(id, newData) {
 		const machineDoc = doc(db, "machines", id);
-		return updateDoc(machineDoc, newData);
+		return updateDoc(machineDoc, {
+			...newData,
+			updatedAt: new Date()
+		});
+	}
+
+	deleteMachine(id) {
+		const machineDoc = doc(db, "machines", id);
+		return deleteDoc(machineDoc);
 	}
 }
 

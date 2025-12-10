@@ -44,6 +44,35 @@ class UserService {
     this.usersCollection = collection(db, 'users');
   }
 
+  // Tạo mới bản ghi người dùng (không tạo tài khoản Auth)
+  async createUserRecord({ email, displayName, role, isActive }) {
+    try {
+      if (!email) {
+        throw new Error('Email là bắt buộc');
+      }
+
+      const newUserRef = doc(this.usersCollection);
+      const uid = newUserRef.id;
+
+      const userDoc = {
+        uid,
+        email,
+        displayName: displayName || (email ? email.split('@')[0] : ''),
+        role: role || USER_ROLES.USER,
+        isActive: typeof isActive === 'boolean' ? isActive : true,
+        createdAt: serverTimestamp(),
+        lastLogin: null,
+        photoURL: null
+      };
+
+      await setDoc(newUserRef, userDoc);
+      return { success: true, user: userDoc };
+    } catch (error) {
+      console.error('Error creating user record:', error);
+      throw error;
+    }
+  }
+
   // Tạo user mới khi đăng ký/đăng nhập lần đầu
   async createUser(userData) {
     try {
