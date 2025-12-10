@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Select, Button, Row, Col, Switch, message, Spin } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import machinesDataService from '../../service/machine.service';
+import machineTypesDataService from '../../service/machineType.service';
+import alertService from '../../service/alert.service';
 
 const { Option } = Select;
 
@@ -9,17 +11,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
-
-    const machineTypes = [
-        { value: 'injection_molding', label: 'Máy ép nhựa' },
-        { value: 'conveyor', label: 'Băng tải' },
-        { value: 'packaging', label: 'Máy đóng gói' },
-        { value: 'mixing', label: 'Máy trộn' },
-        { value: 'cooling', label: 'Hệ thống làm lạnh' },
-        { value: 'cutting', label: 'Máy cắt' },
-        { value: 'welding', label: 'Máy hàn' },
-        { value: 'other', label: 'Khác' }
-    ];
+    const [machineTypes, setMachineTypes] = useState([]);
 
     const locations = [
         { value: 'area_a', label: 'Khu vực A' },
@@ -29,6 +21,64 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         { value: 'area_e', label: 'Khu vực E' }
     ];
 
+    // Load danh sách loại máy từ database
+    const loadMachineTypes = async () => {
+        try {
+            const querySnapshot = await machineTypesDataService.getAllMachineTypes();
+            const types = [];
+            
+            querySnapshot.forEach((doc) => {
+                const docData = doc.data();
+                types.push({
+                    value: docData.code || doc.id,
+                    label: docData.name || docData.code || 'Không tên'
+                });
+            });
+            
+            setMachineTypes(types);
+        } catch (error) {
+            console.error('Lỗi khi load loại máy từ Firebase:', error);
+            
+            // Fallback: load từ localStorage nếu Firebase lỗi
+            try {
+                const localTypes = JSON.parse(localStorage.getItem('machineTypes') || '[]');
+                if (localTypes.length > 0) {
+                    setMachineTypes(
+                        localTypes.map((t) => ({
+                            value: t.code || t.key,
+                            label: t.name || t.code || 'Không tên'
+                        }))
+                    );
+                } else {
+                    // Fallback: dữ liệu mặc định nếu không có trong localStorage
+                    setMachineTypes([
+                        { value: 'injection_molding', label: 'Máy ép nhựa' },
+                        { value: 'conveyor', label: 'Băng tải' },
+                        { value: 'packaging', label: 'Máy đóng gói' },
+                        { value: 'mixing', label: 'Máy trộn' },
+                        { value: 'cooling', label: 'Hệ thống làm lạnh' },
+                        { value: 'cutting', label: 'Máy cắt' },
+                        { value: 'welding', label: 'Máy hàn' },
+                        { value: 'other', label: 'Khác' }
+                    ]);
+                }
+            } catch (localError) {
+                console.error('Lỗi khi load loại máy từ localStorage:', localError);
+                // Fallback: dữ liệu mặc định
+                setMachineTypes([
+                    { value: 'injection_molding', label: 'Máy ép nhựa' },
+                    { value: 'conveyor', label: 'Băng tải' },
+                    { value: 'packaging', label: 'Máy đóng gói' },
+                    { value: 'mixing', label: 'Máy trộn' },
+                    { value: 'cooling', label: 'Hệ thống làm lạnh' },
+                    { value: 'cutting', label: 'Máy cắt' },
+                    { value: 'welding', label: 'Máy hàn' },
+                    { value: 'other', label: 'Khác' }
+                ]);
+            }
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             if (!machineId) return;
@@ -37,12 +87,22 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
                 const docSnap = await machinesDataService.getMachineById(machineId);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
+                    console.log('Machine data loaded:', data);
+                    
                     form.setFieldsValue({
                         machineName: data.machineName || '',
                         machineCode: data.machineCode || '',
                         machineType: data.machineType || undefined,
                         location: data.location || undefined,
-                        status: !!data.status,
+                        status: data.status === 'active', // Chuyển đổi đúng boolean
+                    });
+                    
+                    console.log('Form values set:', {
+                        machineName: data.machineName || '',
+                        machineCode: data.machineCode || '',
+                        machineType: data.machineType || undefined,
+                        location: data.location || undefined,
+                        status: data.status === 'active'
                     });
                 } else {
                     message.error('Không tìm thấy máy.');
@@ -54,6 +114,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
             }
         };
         fetchData();
+        loadMachineTypes();
     }, [machineId, form]);
 
     const onFinish = async (values) => {
@@ -63,10 +124,29 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         }
         setLoading(true);
         try {
-            await machinesDataService.updateMachine(machineId, values);
-            message.success('Cập nhật máy thành công!');
-            if (onSuccess) onSuccess(values);
+            // Chuẩn bị dữ liệu cập nhật với format đúng
+            const updateData = {
+                machineName: values.machineName,
+                machineCode: values.machineCode,
+                machineType: values.machineType,
+                location: values.location,
+                status: values.status ? 'active' : 'inactive',
+                updatedAt: new Date()
+            };
+            
+            console.log('Updating machine with data:', updateData);
+            
+            await machinesDataService.updateMachine(machineId, updateData);
+            
+            // Gửi cảnh báo Telegram
+            alertService.sendMachineAlert('update', { ...updateData, id: machineId });
+
+            // Gọi onSuccess với dữ liệu đã xử lý
+            if (onSuccess) {
+                onSuccess(updateData);
+            }
         } catch (error) {
+            console.error('Error updating machine:', error);
             message.error('Có lỗi xảy ra khi cập nhật máy!');
         } finally {
             setLoading(false);
