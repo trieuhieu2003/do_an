@@ -1,5 +1,14 @@
 import React from 'react';
-import { BarChartOutlined, RobotOutlined, AlertOutlined, SettingOutlined, TeamOutlined, LoginOutlined } from '@ant-design/icons';
+import {
+  BarChartOutlined,
+  RobotOutlined,
+  AlertOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  LoginOutlined,
+  ToolOutlined,
+  BoxPlotOutlined,
+} from '@ant-design/icons';
 
 // Import pages
 import ManufacturingDashboard from '../pages/Home';
@@ -9,6 +18,8 @@ import Analytics from '../pages/Analytics';
 import Alerts from '../pages/Alerts';
 import User from '../pages/User';
 import Login from '../pages/Login';
+import Maintenance from '../Maintain';
+import MachineType from '../Machine_type';
 
 // Route configuration
 export const routes = [
@@ -27,6 +38,22 @@ export const routes = [
     label: 'Bảng điều khiển',
     icon: <BarChartOutlined />,
     component: ManufacturingDashboard,
+    exact: true
+  },
+  {
+    key: 'maintenance',
+    path: '/maintenance',
+    label: 'Bảo trì',
+    icon: <ToolOutlined />,
+    component: Maintenance,
+    exact: true
+  },
+  {
+    key: 'machine-type',
+    path: '/machine-type',
+    label: 'Loại máy',
+    icon: <BoxPlotOutlined />,
+    component: MachineType,
     exact: true
   },
   {
