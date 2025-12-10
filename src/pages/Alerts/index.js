@@ -41,7 +41,7 @@ const Alerts = () => {
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Load alerts from Firebase
+//NOTE Load danh sách cảnh báo từ Firebase, fallback localStorage
     const loadAlerts = async () => {
         try {
             setLoading(true);
@@ -72,7 +72,7 @@ const Alerts = () => {
         }
     };
 
-    // Load machines data
+//NOTE Load danh sách máy để tạo cảnh báo nhiệt độ
     const loadMachines = async () => {
         try {
             const querySnapshot = await machinesDataService.getAllMachines();
@@ -89,7 +89,7 @@ const Alerts = () => {
         }
     };
 
-    // Acknowledge alert
+//NOTE Đánh dấu cảnh báo đã xác nhận
     const acknowledgeAlert = async (alertId) => {
         try {
             await alertService.acknowledgeAlert(alertId);
@@ -103,7 +103,7 @@ const Alerts = () => {
         }
     };
 
-    // Create temperature-only alerts based on machine data
+//NOTE Tạo cảnh báo nhiệt độ từ dữ liệu máy
     const createMachineAlerts = async () => {
         try {
             for (const machine of machines) {
@@ -130,6 +130,7 @@ const Alerts = () => {
         }
     };
 
+    //NOTE Lọc cảnh báo theo trạng thái và từ khóa tìm kiếm
     const filteredAlerts = alerts.filter(alert => {
         const matchesFilter = selectedFilter === 'all' ||
             (selectedFilter === 'critical' && alert.status === 'critical') ||
@@ -142,12 +143,13 @@ const Alerts = () => {
         return matchesFilter && matchesSearch;
     });
 
-    // Calculate statistics
+    //NOTE Tính toán thống kê nhanh
     const totalAlerts = alerts.length;
     const criticalAlerts = alerts.filter(alert => alert.status === 'critical').length;
     const warningAlerts = alerts.filter(alert => alert.status === 'warning').length;
     const unacknowledgedAlerts = alerts.filter(alert => !alert.acknowledged).length;
 
+    //NOTE Khởi tạo dữ liệu và auto-refresh mỗi 10s
     useEffect(() => {
         // Load initial data
         const loadData = async () => {
@@ -165,13 +167,14 @@ const Alerts = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Update alerts when machines data changes
+    //NOTE Khi danh sách máy thay đổi thì tạo cảnh báo mới (nếu có)
     useEffect(() => {
         if (machines.length > 0) {
             createMachineAlerts();
         }
     }, [machines]);
 
+    //NOTE Helpers tính màu/trạng thái/biểu tượng
     const getStatusColor = (status) => {
         return status === 'critical' ? 'red' : 'orange';
     };
@@ -203,6 +206,7 @@ const Alerts = () => {
             : Math.min(100, Math.round((numericValue / numericThreshold) * 100));
     };
 
+    //NOTE Cấu hình cột bảng cảnh báo
     const columns = [
         {
             title: 'Máy',
@@ -344,7 +348,7 @@ const Alerts = () => {
                 </Button>
             </div>
 
-            {/* Statistics Cards */}
+            {/* NOTE Thẻ thống kê nhanh */}
             <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
                 <Col xs={24} sm={12} lg={6}>
                     <Card>
@@ -387,7 +391,7 @@ const Alerts = () => {
                     </Card>
                 </Col>
             </Row>
-            {/* System Status Alert */}
+            {/* NOTE Cảnh báo hệ thống khi còn cảnh báo chưa xử lý */}
             {unacknowledgedAlerts > 0 && (
                 <Alert
                     message="Có cảnh báo chưa được xử lý"
@@ -397,7 +401,7 @@ const Alerts = () => {
                     style={{ margin: '16px' }}
                 />
             )}
-            {/* Filters and Search */}
+            {/* NOTE Bộ lọc và tìm kiếm */}
             <Card style={{ marginBottom: '24px' }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} md={12}>
@@ -423,7 +427,7 @@ const Alerts = () => {
                 </Row>
             </Card>
 
-            {/* Alerts Table */}
+            {/* NOTE Bảng danh sách cảnh báo */}
             <Card>
                 <Spin spinning={loading}>
                     <Table

@@ -24,7 +24,7 @@ const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Dữ liệu mẫu cho danh sách loại máy
+//NOTE Dữ liệu mẫu hiển thị khi chưa có dữ liệu từ Firebase/local
 const initialData = [
   {
     key: "1",
@@ -68,6 +68,7 @@ const initialData = [
   },
 ];
 
+//NOTE Map trạng thái -> màu thẻ Tag
 const statusColorMap = {
   "Đang sử dụng": "green",
   "Bảo trì": "orange",
@@ -80,7 +81,7 @@ export default function MachineTypePage() {
   const [data, setData] = useState(initialData);
   const [editingType, setEditingType] = useState(null);
 
-  // Load danh sách loại máy từ Firestore (giống loadMachines ở trang Máy)
+  //NOTE Load danh sách loại máy từ Firestore, fallback localStorage/initial
   const loadMachineTypes = async () => {
     try {
       const querySnapshot = await machineTypesDataService.getAllMachineTypes();
@@ -129,6 +130,7 @@ export default function MachineTypePage() {
     loadMachineTypes();
   }, []);
 
+  //NOTE Cấu hình cột bảng danh sách loại máy
   const columns = [
     {
       title: "Mã loại",
@@ -196,18 +198,21 @@ export default function MachineTypePage() {
     },
   ];
 
+  //NOTE Mở modal thêm mới
   const handleOpenModal = () => {
     setEditingType(null);
     form.resetFields();
     setIsModalOpen(true);
   };
 
+  //NOTE Đóng modal và reset form
   const handleCancel = () => {
     setIsModalOpen(false);
     form.resetFields();
     setEditingType(null);
   };
 
+  //NOTE Xóa loại máy (ưu tiên Firebase, fallback local)
   const handleDelete = async (record) => {
     // Nếu là bản ghi local (fallback), chỉ cần xóa trong localStorage + state
     if (record.isLocal) {
@@ -240,6 +245,7 @@ export default function MachineTypePage() {
     }
   };
 
+  //NOTE Mở modal chỉnh sửa với dữ liệu đã có
   const handleEdit = (record) => {
     setEditingType(record);
     setIsModalOpen(true);
@@ -253,6 +259,7 @@ export default function MachineTypePage() {
     });
   };
 
+  //NOTE Submit form thêm/sửa loại máy
   const handleFinish = async (values) => {
     const isEditing = !!editingType;
 
@@ -373,6 +380,7 @@ export default function MachineTypePage() {
     }
   };
 
+  //NOTE Giao diện trang danh sách + modal quản lý loại máy
   return (
     <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh", width: "100%" }}>
       <div style={{ width: "100%", margin: "0 auto" }}>

@@ -16,6 +16,7 @@ import alertService from '../../service/alert.service';
 
 const { Option } = Select;
 
+//NOTE Form thêm máy mới
 const AddMachine = ({ onSuccess, onCancel }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
@@ -23,6 +24,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
     const [existingNames, setExistingNames] = useState([]);
     const [machineTypes, setMachineTypes] = useState([]);
 
+    //NOTE Danh sách khu vực cố định
     const locations = [
         { value: 'area_a', label: 'Khu vực A' },
         { value: 'area_b', label: 'Khu vực B' },
@@ -31,7 +33,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         { value: 'area_e', label: 'Khu vực E' }
     ];
 
-    // Load danh sách loại máy từ database
+    //NOTE Load loại máy từ Firestore, fallback localStorage/mặc định
     const loadMachineTypes = async () => {
         try {
             const querySnapshot = await machineTypesDataService.getAllMachineTypes();
@@ -89,7 +91,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         }
     };
 
-    // Load danh sách mã máy và tên máy hiện có để validation
+    //NOTE Khi mount: load mã/tên máy hiện có để kiểm tra trùng, load loại máy
     useEffect(() => {
         const loadExistingData = async () => {
             try {
@@ -115,7 +117,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         loadMachineTypes();
     }, []);
 
-    // Validation cho mã máy
+    //NOTE Validation mã máy trùng
     const validateMachineCode = (_, value) => {
         // if (!value) {
         //     return Promise.reject(new Error('Vui lòng nhập mã máy!'));
@@ -127,7 +129,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         return Promise.resolve();
     };
 
-    // Validation cho tên máy
+    //NOTE Validation tên máy trùng
     const validateMachineName = (_, value) => {
         // if (!value) {
         //     return Promise.reject(new Error('Vui lòng nhập tên máy!'));
@@ -139,6 +141,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         return Promise.resolve();
     };
 
+    //NOTE Submit form thêm máy (Firebase, fallback local)
     const onFinish = async (values) => {
         console.log('Form submitted with values:', values);
         setLoading(true);
@@ -228,6 +231,7 @@ const AddMachine = ({ onSuccess, onCancel }) => {
         }
     };
 
+    //NOTE Reset form
     const onReset = () => {
         form.resetFields();
     };

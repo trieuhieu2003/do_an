@@ -15,9 +15,11 @@ import {
     serverTimestamp
 } from 'firebase/firestore';
 
+//NOTE Collection Firestore cho rung hiện tại và lịch sử
 const vibrationCollection = collection(db, 'machineVibration');
 const vibrationHistoryCollection = collection(db, 'vibrationHistory');
 
+//NOTE Service quản lý dữ liệu rung động (Firebase + fallback localStorage)
 class VibrationService {
     constructor() {
         this.defaultSettings = {
@@ -28,16 +30,19 @@ class VibrationService {
         };
     }
 
+    //NOTE Xác định trạng thái rung theo ngưỡng
     getVibrationStatus(value = 0) {
         if (value >= this.defaultSettings.criticalThreshold) return 'critical';
         if (value >= this.defaultSettings.warningThreshold) return 'warning';
         return 'normal';
     }
 
+    //NOTE Sinh giá trị rung ngẫu nhiên
     generateRandomVibration(min = this.defaultSettings.minVibration, max = this.defaultSettings.maxVibration) {
         return Math.round((Math.random() * (max - min) + min) * 10) / 10;
     }
 
+    //NOTE Validate dữ liệu rung trước khi lưu
     validateVibrationData(vibrationData) {
         if (!vibrationData || typeof vibrationData !== 'object') {
             console.error('Vibration data is not an object:', vibrationData);
@@ -68,6 +73,7 @@ class VibrationService {
         };
     }
 
+    //NOTE Khởi tạo dữ liệu rung giả lập cho danh sách máy
     async initializeVibrationSimulation(machines = []) {
         if (!Array.isArray(machines) || machines.length === 0) {
             return;
@@ -85,6 +91,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Cập nhật rung hiện tại của máy (Firebase, fallback local)
     async updateMachineVibration(machineId, vibrationData) {
         const validatedData = this.validateVibrationData(vibrationData);
         if (!validatedData) {
@@ -131,6 +138,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Upsert rung hiện tại (setDoc merge)
     async upsertMachineVibration(machineId, vibrationData) {
         const validatedData = this.validateVibrationData(vibrationData);
         if (!validatedData) {
@@ -164,6 +172,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Thêm lịch sử rung động
     async addVibrationHistory(machineId, value) {
         if (typeof value !== 'number' || isNaN(value)) {
             return;
@@ -187,6 +196,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Lấy tất cả rung hiện tại của máy
     async getAllMachineVibrations() {
         try {
             const querySnapshot = await getDocs(vibrationCollection);
@@ -212,6 +222,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Fallback lấy rung hiện tại (ưu tiên Firebase, rồi local)
     async getAllMachineVibrationsFallback() {
         try {
             const firebaseData = await this.getAllMachineVibrations();
@@ -231,6 +242,7 @@ class VibrationService {
      * @param {number} limitCount - Số lượng bản ghi cần lấy (mặc định 100)
      * @returns {Array} Mảng các bản ghi lịch sử rung động
      */
+    //NOTE Lấy lịch sử rung động theo machineId
     async getVibrationHistory(machineId, limitCount = 100) {
         try {
             // Sử dụng query với orderBy vì index đã có sẵn trong Firebase
@@ -292,6 +304,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Lưu dữ liệu rung vào localStorage
     saveToLocalStorage(collectionName, docId, data) {
         try {
             const key = `${collectionName}_${docId}`;
@@ -301,6 +314,7 @@ class VibrationService {
         }
     }
 
+    //NOTE Lấy toàn bộ dữ liệu rung trong localStorage theo prefix
     getAllFromLocalStorage(collectionName) {
         try {
             const results = [];

@@ -50,6 +50,7 @@ import alertService from '../../service/alert.service';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+//NOTE Trang dashboard quản lý máy
 const MachineDashboard = () => {
     const screens = Grid.useBreakpoint();
     const [activeTab, setActiveTab] = useState('all');
@@ -77,25 +78,29 @@ const MachineDashboard = () => {
     });
     const [isTemperatureSimulationRunning, setIsTemperatureSimulationRunning] = useState(false);
 
+    //NOTE Mở modal thêm máy
     const showModal = () => {
         setIsModalVisible(true);
     };
 
+    //NOTE Đóng modal thêm máy
     const handleCancel = () => {
         setIsModalVisible(false);
     };
 
+    //NOTE Mở modal chỉnh sửa máy
     const showEditModal = (machine) => {
         setSelectedMachineId(machine.key);
         setIsEditModalVisible(true);
     };
 
+    //NOTE Đóng modal chỉnh sửa máy
     const handleEditCancel = () => {
         setIsEditModalVisible(false);
         setSelectedMachineId(null);
     };
 
-    // Load và hiển thị kế hoạch bảo trì theo loại máy
+    //NOTE Hiển thị kế hoạch bảo trì theo loại máy
     const showMaintenancePlans = async (machine) => {
         const machineTypeCode = machine.machineType;
         if (!machineTypeCode) {
@@ -181,12 +186,14 @@ const MachineDashboard = () => {
         }
     };
 
+    //NOTE Đóng modal kế hoạch bảo trì
     const handleCloseMaintenancePlansModal = () => {
         setIsMaintenancePlansModalVisible(false);
         setSelectedMachineType(null);
         setMaintenancePlans([]);
     };
 
+    //NOTE Sau khi chỉnh sửa máy thành công, cập nhật danh sách
     const handleEditSuccess = (updatedData) => {
         console.log('Edit success - updatedData:', updatedData);
         console.log('Selected machine ID:', selectedMachineId);
@@ -227,7 +234,7 @@ const MachineDashboard = () => {
         }, 1000);
     };
 
-    // Xử lý xóa máy
+    //NOTE Xóa máy (Firebase, fallback local)
     const handleDeleteMachine = async (machine) => {
         try {
             // Xóa từ Firebase
@@ -280,7 +287,7 @@ const MachineDashboard = () => {
     };
 
 
-    // Load temperature statistics
+    //NOTE Load thống kê nhiệt độ (fallback)
     const loadTemperatureStats = async () => {
         try {
             const stats = await temperatureService.getTemperatureStatsFallback();
@@ -297,7 +304,7 @@ const MachineDashboard = () => {
         }
     };
 
-    // Initialize temperature simulation
+    //NOTE Khởi tạo giả lập nhiệt độ/độ rung cho máy đang hoạt động
     const initializeTemperatureSimulation = async () => {
         try {
             // Chỉ lấy máy đang hoạt động
@@ -360,7 +367,7 @@ const MachineDashboard = () => {
         return Math.max(65, Math.min(100, Math.round(calculated)));
     };
 
-    // Toggle temperature simulation
+    //NOTE Bật/tắt giả lập nhiệt độ
     const toggleTemperatureSimulation = async () => {
         try {
             if (isTemperatureSimulationRunning) {
@@ -392,7 +399,7 @@ const MachineDashboard = () => {
         }
     };
 
-    // Load machine temperatures
+    //NOTE Load nhiệt độ và rung cho máy, tạo alert khi vượt ngưỡng
     const loadMachineTemperatures = async () => {
         try {
             const temperatures = await temperatureService.getAllMachineTemperaturesFallback();
@@ -481,7 +488,7 @@ const MachineDashboard = () => {
         }
     };
 
-    // Create vibration alert
+    //NOTE Tạo cảnh báo độ rung
     const createVibrationAlert = async (machine, vibration) => {
         try {
             console.log(`Checking vibration alert for machine ${machine.name}: ${vibration} mm/s`);
@@ -536,7 +543,7 @@ const MachineDashboard = () => {
         }
     };
 
-    // Create temperature alert
+    //NOTE Tạo cảnh báo nhiệt độ
     const createTemperatureAlert = async (machine, temperature) => {
         try {
             console.log(`Checking temperature alert for machine ${machine.name}: ${temperature}°C`);
@@ -589,7 +596,7 @@ const MachineDashboard = () => {
         }
     };
 
-    // Load dữ liệu máy từ Firebase
+    //NOTE Load danh sách máy (Firebase, fallback local)
     const loadMachines = async () => {
         setLoading(true);
         try {
@@ -632,13 +639,13 @@ const MachineDashboard = () => {
         }
     };
 
-    // Load dữ liệu khi component mount
+    //NOTE Hook mount: load máy + thống kê nhiệt độ
     useEffect(() => {
         loadMachines();
         loadTemperatureStats();
     }, []);
 
-    // Load temperatures periodically only when simulation is running
+    //NOTE Interval 5s khi giả lập chạy: cập nhật nhiệt độ/rung + thống kê
     useEffect(() => {
         let interval;
         
@@ -659,7 +666,7 @@ const MachineDashboard = () => {
         };
     }, [isTemperatureSimulationRunning, machineData]);
 
-    // Hàm xử lý dữ liệu máy để đảm bảo format đúng
+    //NOTE Chuẩn hóa dữ liệu máy trước khi render
     const processMachineData = (machineData) => {
         const normalizedVibration = typeof machineData.vibration === 'number'
             ? parseFloat(machineData.vibration.toFixed(1))
@@ -697,7 +704,7 @@ const MachineDashboard = () => {
         };
     };
 
-    // Xử lý khi thêm máy thành công
+    //NOTE Sau khi thêm máy thành công, cập nhật danh sách
     const handleAddSuccess = (newMachine) => {
         console.log('New machine added:', newMachine);
         

@@ -39,6 +39,7 @@ import { getAuth, sendPasswordResetEmail, updatePassword } from 'firebase/auth';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
+//NOTE Trang quản lý người dùng
 const User = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,11 +60,12 @@ const User = () => {
   // Firebase auth
   const auth = getAuth();
 
-  // Fetch users on component mount
+  //NOTE Fetch danh sách user khi mount
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  //NOTE Load danh sách user từ service
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -80,6 +82,7 @@ const User = () => {
     }
   };
 
+  //NOTE Mở modal chỉnh sửa user
   const handleEditUser = (user) => {
     setSelectedUser(user);
     editForm.setFieldsValue({
@@ -90,6 +93,7 @@ const User = () => {
     setEditModalVisible(true);
   };
 
+  //NOTE Submit cập nhật user
   const handleUpdateUser = async (values) => {
     try {
       const result = await userService.updateUser(selectedUser.uid, {
@@ -109,6 +113,7 @@ const User = () => {
     }
   };
 
+  //NOTE Xóa user
   const handleDeleteUser = async (uid) => {
     try {
       const result = await userService.deleteUser(uid);
@@ -123,7 +128,7 @@ const User = () => {
     }
   };
 
-  // Reset password function
+  //NOTE Gửi email reset password
   const handleResetPassword = async (email) => {
     setResetPasswordLoading(true);
     try {
@@ -151,7 +156,7 @@ const User = () => {
     }
   };
 
-  // Create new password function
+  //NOTE Tạo mật khẩu mới (ghi log, không đổi Firebase)
   const handleCreateNewPassword = async () => {
     if (!newPassword || newPassword.length < 6) {
       message.error('Mật khẩu phải có ít nhất 6 ký tự!');
@@ -208,23 +213,27 @@ const User = () => {
     }
   };
 
+  //NOTE Mở modal reset password
   const showResetPasswordModal = (user) => {
     setSelectedUser(user);
     setResetPasswordModalVisible(true);
   };
 
+  //NOTE Mở modal tạo mật khẩu mới
   const showNewPasswordModal = (user) => {
     setSelectedUser(user);
     setNewPasswordModalVisible(true);
     setNewPassword('');
   };
 
+  //NOTE Hiển thị danh sách mật khẩu đã tạo (localStorage)
   const showPasswordListModal = () => {
     const passwords = passwordService.getNewPasswords();
     setPasswordList(passwords);
     setPasswordListModalVisible(true);
   };
 
+  //NOTE Xóa danh sách mật khẩu đã tạo
   const clearPasswordList = () => {
     try {
       passwordService.clearNewPasswords();

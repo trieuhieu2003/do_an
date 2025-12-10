@@ -15,10 +15,11 @@ import {
     serverTimestamp
 } from "firebase/firestore";
 
-// Collection references
+//NOTE Collection references
 const temperatureHistoryCollection = collection(db, "temperatureHistory");
 const machineTemperatureCollection = collection(db, "machineTemperature");
 
+//NOTE Service quản lý nhiệt độ máy (Firebase + fallback localStorage)
 class TemperatureService {
     constructor() {
         this.temperatureIntervals = new Map(); // Lưu trữ interval IDs
@@ -34,11 +35,7 @@ class TemperatureService {
         };
     }
 
-    /**
-     * Khởi tạo dữ liệu nhiệt độ giả lập cho tất cả máy
-     * @param {Array} machines - Danh sách máy
-     * @param {Object} settings - Cài đặt giả lập
-     */
+    //NOTE Khởi tạo dữ liệu nhiệt độ giả lập cho tất cả máy
     async initializeTemperatureSimulation(machines, settings = {}) {
         if (!machines || !Array.isArray(machines) || machines.length === 0) {
             console.error('No machines provided for temperature initialization');
@@ -73,11 +70,7 @@ class TemperatureService {
         return true;
     }
 
-    /**
-     * Bắt đầu giả lập nhiệt độ theo thời gian thực
-     * @param {Array} machines - Danh sách máy
-     * @param {Object} settings - Cài đặt giả lập
-     */
+    //NOTE Bắt đầu giả lập nhiệt độ theo thời gian thực
     startTemperatureSimulation(machines, settings = {}) {
         if (this.isSimulationRunning) {
             console.log('Temperature simulation is already running');
@@ -129,9 +122,7 @@ class TemperatureService {
         // console.log('Temperature simulation started successfully');
     }
 
-    /**
-     * Dừng giả lập nhiệt độ
-     */
+    //NOTE Dừng giả lập nhiệt độ
     stopTemperatureSimulation() {
         if (!this.isSimulationRunning) {
             console.log('Temperature simulation is not running');
@@ -148,11 +139,7 @@ class TemperatureService {
         // console.log('Temperature simulation stopped successfully');
     }
 
-    /**
-     * Cập nhật nhiệt độ của một máy cụ thể
-     * @param {string} machineId - ID của máy
-     * @param {Object} temperatureData - Dữ liệu nhiệt độ
-     */
+    //NOTE Cập nhật nhiệt độ hiện tại của một máy (upsert, fallback local)
     async updateMachineTemperature(machineId, temperatureData) {
         // console.log(`Attempting to update temperature for machine ${machineId}:`, temperatureData);
         
@@ -220,7 +207,7 @@ class TemperatureService {
         }
     }
 
-    // Validate temperature data before sending to Firebase
+    //NOTE Validate dữ liệu nhiệt độ trước khi gửi Firebase
     validateTemperatureData(temperatureData) {
         if (!temperatureData || typeof temperatureData !== 'object') {
             console.error('Temperature data is not an object:', temperatureData);
@@ -244,7 +231,7 @@ class TemperatureService {
         };
     }
 
-    // Helper method để tạo hoặc cập nhật document với ID cố định
+    //NOTE Upsert nhiệt độ cho máy (setDoc merge)
     async upsertMachineTemperature(machineId, temperatureData) {
         // console.log(`Upserting temperature for machine ${machineId}:`, temperatureData);
         
@@ -285,10 +272,7 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Lấy nhiệt độ hiện tại của máy
-     * @param {string} machineId - ID của máy
-     */
+    //NOTE Lấy nhiệt độ hiện tại của máy (Firebase, fallback local)
     async getCurrentTemperature(machineId) {
         try {
             const machineTempDoc = doc(db, "machineTemperature", machineId);
@@ -318,12 +302,7 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Lấy nhiệt độ bộ điều khiển hiện tại của máy
-     * @param {string} machineId - ID của máy
-     * @param {number} motorTemperature - Nhiệt độ động cơ (để tính toán nếu không có trong DB)
-     * @returns {number|null} - Nhiệt độ bộ điều khiển hoặc null nếu không có
-     */
+    //NOTE Lấy nhiệt độ bộ điều khiển, fallback/gia lập nếu thiếu dữ liệu
     async getCurrentControllerTemperature(machineId, motorTemperature = null) {
         try {
             const machineTempDoc = doc(db, "machineTemperature", machineId);
@@ -383,11 +362,7 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Thêm bản ghi lịch sử nhiệt độ
-     * @param {string} machineId - ID của máy
-     * @param {number} temperature - Nhiệt độ
-     */
+    //NOTE Thêm bản ghi lịch sử nhiệt độ
     async addTemperatureHistory(machineId, temperature) {
         // console.log(`Adding temperature history for machine ${machineId}: ${temperature}°C`);
         
@@ -431,11 +406,7 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Lấy lịch sử nhiệt độ của máy
-     * @param {string} machineId - ID của máy
-     * @param {number} limitCount - Số lượng bản ghi tối đa
-     */
+    //NOTE Lấy lịch sử nhiệt độ của máy
     async getTemperatureHistory(machineId, limitCount = 100) {
         try {
             console.log('🔍 Querying temperature history for machineId:', machineId);
@@ -508,9 +479,7 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Lấy tất cả nhiệt độ hiện tại của các máy
-     */
+    //NOTE Lấy tất cả nhiệt độ hiện tại của các máy
     async getAllMachineTemperatures() {
         try {
             const querySnapshot = await getDocs(machineTemperatureCollection);
@@ -532,20 +501,12 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Tạo nhiệt độ ngẫu nhiên trong khoảng
-     * @param {number} min - Nhiệt độ tối thiểu
-     * @param {number} max - Nhiệt độ tối đa
-     */
+    //NOTE Tạo nhiệt độ ngẫu nhiên trong khoảng
     generateRandomTemperature(min, max) {
         return Math.round((Math.random() * (max - min) + min) * 10) / 10;
     }
 
-    /**
-     * Tính toán nhiệt độ mới dựa trên nhiệt độ hiện tại
-     * @param {number} currentTemp - Nhiệt độ hiện tại
-     * @param {Object} settings - Cài đặt
-     */
+    //NOTE Tính nhiệt độ mới dựa trên nhiệt độ hiện tại + biến thiên
     calculateNewTemperature(currentTemp, settings) {
         const variation = settings.temperatureVariation || 5;
         const change = (Math.random() - 0.5) * 2 * variation;
@@ -558,11 +519,7 @@ class TemperatureService {
         );
     }
 
-    /**
-     * Xác định trạng thái nhiệt độ
-     * @param {number} temperature - Nhiệt độ
-     * @param {Object} settings - Cài đặt
-     */
+    //NOTE Xác định trạng thái nhiệt độ theo ngưỡng
     getTemperatureStatus(temperature, settings) {
         if (temperature >= settings.criticalThreshold) {
             return 'critical';
@@ -573,32 +530,24 @@ class TemperatureService {
         }
     }
 
-    /**
-     * Lấy thống kê nhiệt độ
-     */
+    //NOTE Lấy thống kê nhiệt độ (dùng fallback)
     async getTemperatureStats() {
         return await this.getTemperatureStatsFallback();
     }
 
-    /**
-     * Kiểm tra trạng thái giả lập
-     */
+    //NOTE Kiểm tra trạng thái giả lập
     isSimulationActive() {
         return this.isSimulationRunning;
     }
 
-    /**
-     * Lấy danh sách máy đang được giả lập
-     */
+    //NOTE Lấy danh sách máy đang được giả lập
     getSimulatedMachines() {
         return Array.from(this.temperatureIntervals.keys());
     }
 
-    /**
-     * Helper methods cho localStorage fallback
-     */
+    //NOTE Helper localStorage fallback
     
-    // Lưu dữ liệu vào localStorage
+    //NOTE Lưu dữ liệu vào localStorage
     saveToLocalStorage(collection, docId, data) {
         try {
             const key = `${collection}_${docId}`;
@@ -609,7 +558,7 @@ class TemperatureService {
         }
     }
 
-    // Đọc dữ liệu từ localStorage
+    //NOTE Đọc dữ liệu từ localStorage
     getFromLocalStorage(collection, docId) {
         try {
             const key = `${collection}_${docId}`;
@@ -621,7 +570,7 @@ class TemperatureService {
         }
     }
 
-    // Lấy tất cả dữ liệu từ localStorage theo collection
+    //NOTE Lấy tất cả dữ liệu localStorage theo prefix collection
     getAllFromLocalStorage(collection) {
         try {
             // console.log(`Getting localStorage data for collection: ${collection}`);
@@ -655,7 +604,7 @@ class TemperatureService {
         }
     }
 
-    // Fallback method cho getAllMachineTemperatures
+    //NOTE Fallback: lấy nhiệt độ máy (ưu tiên Firebase, fallback local)
     async getAllMachineTemperaturesFallback() {
         // console.log('=== getAllMachineTemperaturesFallback START ===');
         
@@ -683,7 +632,7 @@ class TemperatureService {
         return localData;
     }
 
-    // Fallback method cho getTemperatureStats
+    //NOTE Fallback: thống kê nhiệt độ
     async getTemperatureStatsFallback() {
         try {
             const allTemperatures = await this.getAllMachineTemperaturesFallback();

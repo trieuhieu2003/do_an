@@ -65,7 +65,7 @@ function Analytics() {
     const [currentVibration, setCurrentVibration] = useState(0); // Độ rung hiện tại từ machineVibration
     const currentMachineCodeRef = useRef(null); // Lưu machineCode hiện tại để tránh load lại không cần thiết
 
-    // Load dữ liệu máy
+//NOTE Load danh sách máy và auto chọn máy đầu tiên
     const loadMachines = async () => {
         try {
             const querySnapshot = await machinesDataService.getAllMachines();
@@ -96,7 +96,7 @@ function Analytics() {
         }
     };
 
-    // Load nhiệt độ động cơ hiện tại từ machineTemperature
+//NOTE Lấy nhiệt độ động cơ hiện tại (machineTemperature)
     const loadCurrentMotorTemperature = async (machineId) => {
         if (!machineId) return;
         try {
@@ -109,7 +109,7 @@ function Analytics() {
         }
     };
 
-    // Load độ rung hiện tại từ machineVibration
+//NOTE Lấy độ rung hiện tại (machineVibration)
     const loadCurrentVibration = async (machineId) => {
         if (!machineId) return;
         try {
@@ -124,7 +124,7 @@ function Analytics() {
         }
     };
 
-    // Load dữ liệu nhiệt độ
+//NOTE Load lịch sử nhiệt độ + controller, đồng thời cập nhật thống kê
     const loadTemperatureData = async (machineId) => {
         if (!machineId) return;
         try {
@@ -213,7 +213,7 @@ function Analytics() {
         }
     };
 
-    // Load dữ liệu rung động (lịch sử)
+//NOTE Load lịch sử rung động, format cho biểu đồ và bảng
     const loadVibrationData = async (machineId) => {
         if (!machineId) return;
         try {
@@ -299,7 +299,7 @@ function Analytics() {
         }
     };
 
-    // Tính toán dữ liệu trạng thái máy
+//NOTE Tính toán thống kê trạng thái máy (active/inactive/maintenance/error)
     const calculateStatusData = () => {
         const statusCount = {
             active: 0,
@@ -331,7 +331,7 @@ function Analytics() {
         setStatusData(statusDataArray);
     };
 
-    // Load dữ liệu tổng hợp
+//NOTE Load dữ liệu tổng hợp ban đầu
     const loadAllData = async () => {
         setLoading(true);
         try {
@@ -343,7 +343,7 @@ function Analytics() {
         }
     };
 
-    // Load dữ liệu khi chọn máy (chỉ khi selectedMachine thay đổi)
+//NOTE Khi đổi máy được chọn, load lại nhiệt độ/rung và cập nhật stat
     useEffect(() => {
         if (!selectedMachine || machines.length === 0) return;
         
@@ -379,17 +379,17 @@ function Analytics() {
         }));
     }, [selectedMachine]); // Chỉ trigger khi selectedMachine thay đổi
 
-    // Tính toán dữ liệu trạng thái khi máy thay đổi
+//NOTE Khi danh sách máy thay đổi thì cập nhật thống kê trạng thái
     useEffect(() => {
         calculateStatusData();
     }, [machines]);
 
-    // Load dữ liệu ban đầu
+//NOTE Load dữ liệu ban đầu khi mount
     useEffect(() => {
         loadAllData();
     }, []); // Chỉ chạy một lần khi component mount
 
-    // Cập nhật dữ liệu tự động mỗi 5 giây (chỉ khi đã có máy được chọn)
+//NOTE Auto-refresh mỗi 5s cho máy đang được chọn
     useEffect(() => {
         if (!selectedMachine || machines.length === 0) {
             return;

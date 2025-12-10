@@ -11,19 +11,22 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-// Collection Firestore cho loại máy
+//NOTE Collection Firestore cho loại máy
 const machineTypesCollectionRef = collection(db, "machineTypes");
 
 class machineTypesDataService {
+  //NOTE Lấy tất cả loại máy
   getAllMachineTypes() {
     return getDocs(machineTypesCollectionRef);
   }
 
+  //NOTE Lấy loại máy theo id
   getMachineTypeById(id) {
     const machineTypeDoc = doc(db, "machineTypes", id);
     return getDoc(machineTypeDoc);
   }
 
+  //NOTE Thêm loại máy mới
   addMachineType(newMachineType) {
     return addDoc(machineTypesCollectionRef, {
       ...newMachineType,
@@ -32,6 +35,7 @@ class machineTypesDataService {
     });
   }
 
+  //NOTE Cập nhật loại máy
   updateMachineType(id, newData) {
     const machineTypeDoc = doc(db, "machineTypes", id);
     return updateDoc(machineTypeDoc, {
@@ -40,6 +44,7 @@ class machineTypesDataService {
     });
   }
 
+  //NOTE Xóa loại máy
   deleteMachineType(id) {
     const machineTypeDoc = doc(db, "machineTypes", id);
     return deleteDoc(machineTypeDoc);

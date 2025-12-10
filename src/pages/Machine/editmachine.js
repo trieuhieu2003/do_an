@@ -7,12 +7,14 @@ import alertService from '../../service/alert.service';
 
 const { Option } = Select;
 
+//NOTE Form chỉnh sửa máy
 const EditMachine = ({ machineId, onSuccess, onCancel }) => {
     const [form] = Form.useForm();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(false);
     const [machineTypes, setMachineTypes] = useState([]);
 
+    //NOTE Danh sách khu vực cố định
     const locations = [
         { value: 'area_a', label: 'Khu vực A' },
         { value: 'area_b', label: 'Khu vực B' },
@@ -21,7 +23,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         { value: 'area_e', label: 'Khu vực E' }
     ];
 
-    // Load danh sách loại máy từ database
+    //NOTE Load loại máy từ Firestore, fallback localStorage/mặc định
     const loadMachineTypes = async () => {
         try {
             const querySnapshot = await machineTypesDataService.getAllMachineTypes();
@@ -79,6 +81,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         }
     };
 
+    //NOTE Khi mount hoặc đổi machineId: load dữ liệu máy + danh sách loại
     useEffect(() => {
         const fetchData = async () => {
             if (!machineId) return;
@@ -117,6 +120,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         loadMachineTypes();
     }, [machineId, form]);
 
+    //NOTE Submit form cập nhật máy (Firebase)
     const onFinish = async (values) => {
         if (!machineId) {
             message.error('Thiếu mã máy để cập nhật.');
@@ -153,6 +157,7 @@ const EditMachine = ({ machineId, onSuccess, onCancel }) => {
         }
     };
 
+    //NOTE Reset form
     const onReset = () => {
         form.resetFields();
     };

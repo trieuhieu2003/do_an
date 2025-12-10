@@ -5,9 +5,7 @@ class PasswordService {
     this.auth = getAuth();
   }
 
-  // Tạo mật khẩu mới cho user (dành cho testing)
-  // LƯU Ý: Đây chỉ là giải pháp tạm thời để admin xem mật khẩu
-  // Để thực sự thay đổi mật khẩu, cần sử dụng Firebase Admin SDK hoặc Cloud Functions
+  //NOTE Tạo mật khẩu mới (chỉ lưu local, không đổi Firebase)
   async createNewPasswordForUser(user, newPassword) {
     try {
       // Lưu thông tin mật khẩu mới vào localStorage
@@ -36,7 +34,7 @@ class PasswordService {
     }
   }
 
-  // Lấy danh sách mật khẩu mới đã tạo
+  //NOTE Lấy danh sách mật khẩu đã tạo (localStorage)
   getNewPasswords() {
     try {
       const savedPasswords = JSON.parse(localStorage.getItem('newPasswords') || '[]');
@@ -47,7 +45,7 @@ class PasswordService {
     }
   }
 
-  // Xóa mật khẩu đã lưu
+  //NOTE Xóa danh sách mật khẩu đã tạo
   clearNewPasswords() {
     try {
       localStorage.removeItem('newPasswords');
@@ -58,7 +56,7 @@ class PasswordService {
     }
   }
 
-  // Tạo mật khẩu ngẫu nhiên
+  //NOTE Tạo mật khẩu ngẫu nhiên
   generateRandomPassword(length = 12) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let password = '';
@@ -68,7 +66,7 @@ class PasswordService {
     return password;
   }
 
-  // Kiểm tra độ mạnh mật khẩu
+  //NOTE Kiểm tra độ mạnh mật khẩu
   checkPasswordStrength(password) {
     const checks = {
       length: password.length >= 8,
@@ -87,7 +85,7 @@ class PasswordService {
     return { strength: 'Rất yếu', color: 'red', score: 1 };
   }
 
-  // Demo function để test (có thể xóa sau)
+  //NOTE Tạo dữ liệu demo (local)
   createDemoPasswords() {
     const demoPasswords = [
       {
@@ -110,7 +108,7 @@ class PasswordService {
     return demoPasswords;
   }
 
-  // Hướng dẫn cách thực sự thay đổi mật khẩu
+  //NOTE Hướng dẫn thay đổi mật khẩu thực sự
   getPasswordChangeInstructions() {
     return {
       title: 'Hướng dẫn thay đổi mật khẩu thực sự',

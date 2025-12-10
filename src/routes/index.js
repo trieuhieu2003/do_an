@@ -21,7 +21,7 @@ import Login from '../pages/Login';
 import Maintenance from '../Maintain';
 import MachineType from '../Machine_type';
 
-// Route configuration
+//NOTE Định nghĩa các route chính của ứng dụng
 export const routes = [
   {
     key: 'login',
@@ -98,20 +98,20 @@ export const routes = [
   },
 ];
 
-// Navigation menu items (filtered to exclude hidden routes and public routes)
+//NOTE Menu hiển thị (bỏ qua route ẩn và route public)
 export const menuItems = routes.filter(route => !route.hidden && !route.public);
 
-// Get route by path
+//NOTE Lấy thông tin route theo path
 export const getRouteByPath = (path) => {
   return routes.find(route => route.path === path);
 };
 
-// Get route by key
+//NOTE Lấy thông tin route theo key
 export const getRouteByKey = (key) => {
   return routes.find(route => route.key === key);
 };
 
-// Get current route key based on pathname
+//NOTE Lấy key route hiện tại từ pathname
 export const getCurrentRouteKey = (pathname) => {
   const currentRoute = getRouteByPath(pathname);
   return currentRoute ? currentRoute.key : 'dashboard';

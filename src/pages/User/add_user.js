@@ -22,17 +22,19 @@ import {
 const { Title } = Typography;
 const { Option } = Select;
 
+//NOTE Form thêm người dùng mới
 const AddUser = ({ onSuccess, onCancel }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  // Role options
+  //NOTE Danh sách vai trò
   const roles = [
     { value: 'admin', label: 'Quản trị viên', color: '#ff4d4f' },
     { value: 'manager', label: 'Quản lý', color: '#1890ff' },
     { value: 'user', label: 'Người dùng', color: '#52c41a' },
   ];
 
+  //NOTE Submit form tạo user (Firebase)
   const onFinish = async (values) => {
     setLoading(true);
     try {
@@ -62,6 +64,7 @@ const AddUser = ({ onSuccess, onCancel }) => {
     }
   };
 
+  //NOTE Reset form
   const onReset = () => {
     form.resetFields();
   };

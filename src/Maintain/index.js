@@ -26,7 +26,7 @@ const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Dữ liệu mẫu cho danh sách kế hoạch bảo trì
+//NOTE Dữ liệu mẫu fallback khi chưa có kế hoạch
 const initialData = [
   {
     // key: "1",
@@ -62,6 +62,7 @@ const initialData = [
   // },
 ];
 
+//NOTE Danh sách tần suất bảo trì để chọn nhanh
 const frequencies = [
   "Hàng ngày",
   "Hàng tuần",
@@ -79,7 +80,7 @@ export default function MaintenanceCategory() {
   const [editingPlan, setEditingPlan] = useState(null);
   const [machineTypes, setMachineTypes] = useState([]);
 
-  // Load danh sách kế hoạch bảo trì từ Firestore
+  //NOTE Load kế hoạch bảo trì từ Firestore, fallback localStorage/initial
   const loadMaintenancePlans = async () => {
     try {
       const querySnapshot =
@@ -140,7 +141,7 @@ export default function MaintenanceCategory() {
     }
   };
 
-  // Load danh sách loại máy từ Firestore để hiển thị trong Select
+  //NOTE Load danh sách loại máy để hiển thị trong Select (map code -> name)
   const loadMachineTypes = async () => {
     try {
       const querySnapshot =
@@ -186,6 +187,7 @@ export default function MaintenanceCategory() {
     loadMachineTypes();
   }, []);
 
+  //NOTE Cấu hình cột bảng kế hoạch bảo trì
   const columns = [
     {
       title: "Tên Kế hoạch",
@@ -246,6 +248,7 @@ export default function MaintenanceCategory() {
     },
   ];
 
+  //NOTE Mở modal tạo mới kế hoạch
   const handleOpenModal = () => {
     setEditingPlan(null);
     form.resetFields();
@@ -253,12 +256,14 @@ export default function MaintenanceCategory() {
     setIsModalOpen(true);
   };
 
+  //NOTE Đóng modal và reset form/tần suất
   const handleCancel = () => {
     setIsModalOpen(false);
     form.resetFields();
     setSelectedFrequency("Hàng tháng");
   };
 
+  //NOTE Mở modal chỉnh sửa kế hoạch hiện có
   const handleEdit = (record) => {
     setEditingPlan(record);
     setIsModalOpen(true);
@@ -271,6 +276,7 @@ export default function MaintenanceCategory() {
     });
   };
 
+  //NOTE Xóa kế hoạch (ưu tiên Firebase, fallback local)
   const handleDelete = async (record) => {
     // Nếu là bản ghi local (fallback), chỉ cần xóa trong localStorage + state
     if (record.isLocal) {
@@ -305,6 +311,7 @@ export default function MaintenanceCategory() {
     }
   };
 
+  //NOTE Submit form thêm/sửa kế hoạch bảo trì
   const handleFinish = async (values) => {
     const isEditing = !!editingPlan;
 
@@ -438,6 +445,7 @@ export default function MaintenanceCategory() {
     }
   };
 
+  //NOTE Giao diện trang danh sách + modal quản lý kế hoạch bảo trì
   return (
     <div style={{ padding: 24, background: "#f5f5f5", minHeight: "100vh", width: "100%" }}>
       <div style={{ width: "100%", margin: "0 auto" }}>

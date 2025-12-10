@@ -44,7 +44,7 @@ class AlertService {
         }
     }
 
-    // Khởi tạo chat_id Telegram (gọi một lần khi khởi động ứng dụng)
+//NOTE Khởi tạo chat_id Telegram (dùng lại nếu đã lưu)
     async initializeTelegramChatId() {
         // Kiểm tra xem đã có chat_id trong localStorage chưa
         const savedChatId = localStorage.getItem('telegram_chat_id');
@@ -69,7 +69,7 @@ class AlertService {
         return null;
     }
 
-    // Lấy chat_id từ Telegram API
+    //NOTE Lấy chat_id từ Telegram API
     async getTelegramChatId() {
         try {
             const updatesResponse = await fetch(`${TELEGRAM_API_URL}/getUpdates`);
@@ -92,7 +92,7 @@ class AlertService {
         }
     }
 
-    // Gửi cảnh báo đến Telegram
+    //NOTE Gửi tin nhắn tới Telegram (tự lấy chat_id nếu thiếu)
     async sendTelegramNotification(message, chatId = null) {
         if (!TELEGRAM_BOT_TOKEN || typeof fetch === 'undefined') {
             console.warn('Telegram bot token không được cấu hình');
@@ -146,7 +146,7 @@ class AlertService {
         }
     }
 
-    // Gửi cảnh báo loại máy đến Telegram
+    //NOTE Gửi cảnh báo loại máy tới Telegram
     async sendMachineTypeAlert(action, machineTypeData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
@@ -167,7 +167,7 @@ ${machineTypeData.desc ? `📝 <b>Mô tả:</b> ${machineTypeData.desc}` : ''}
         await this.sendTelegramNotification(message);
     }
 
-    // Gửi cảnh báo máy đến Telegram
+    //NOTE Gửi cảnh báo máy tới Telegram
     async sendMachineAlert(action, machineData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
@@ -193,7 +193,7 @@ ${machineData.temperature ? `🌡️ <b>Nhiệt độ:</b> ${machineData.tempera
         await this.sendTelegramNotification(message);
     }
 
-    // Gửi cảnh báo kế hoạch bảo trì đến Telegram
+    //NOTE Gửi cảnh báo kế hoạch bảo trì tới Telegram
     async sendMaintenancePlanAlert(action, planData) {
         const emoji = action === 'create' ? '✅' : action === 'update' ? '✏️' : '❌';
         const actionText = action === 'create' ? 'Thêm mới' : action === 'update' ? 'Cập nhật' : 'Xóa';
@@ -212,7 +212,7 @@ ${planData.desc || planData.description ? `📝 <b>Mô tả:</b> ${planData.desc
         await this.sendTelegramNotification(message);
     }
 
-    // Gửi cảnh báo nhiệt độ đến Telegram
+    //NOTE Gửi cảnh báo nhiệt độ tới Telegram
     async sendTemperatureAlertToTelegram(alertData) {
         const emoji = alertData.status === 'critical' ? '🔥' : '⚠️';
         const statusText = alertData.status === 'critical' ? 'NGUY HIỂM' : 'CẢNH BÁO';
@@ -234,7 +234,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Nhiệt độ máy</b>
         await this.sendTelegramNotification(message);
     }
 
-    // Gửi cảnh báo độ rung đến Telegram
+    //NOTE Gửi cảnh báo độ rung tới Telegram
     async sendVibrationAlertToTelegram(alertData) {
         const emoji = alertData.status === 'critical' ? '⚡' : '⚠️';
         const statusText = alertData.status === 'critical' ? 'NGUY HIỂM' : 'CẢNH BÁO';
@@ -256,7 +256,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         await this.sendTelegramNotification(message);
     }
 
-    // Tạo cảnh báo mới
+    //NOTE Tạo alert mới trong Firestore
     createAlert(alertData) {
         return addDoc(alertsCollectionRef, {
             ...alertData,
@@ -265,12 +265,12 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         });
     }
 
-    // Lấy tất cả cảnh báo
+    //NOTE Lấy tất cả cảnh báo (mới nhất trước)
     getAllAlerts() {
         return getDocs(query(alertsCollectionRef, orderBy('createdAt', 'desc')));
     }
 
-    // Lấy cảnh báo theo trạng thái
+    //NOTE Lấy cảnh báo theo status
     getAlertsByStatus(status) {
         return getDocs(query(
             alertsCollectionRef, 
@@ -279,7 +279,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         ));
     }
 
-    // Lấy cảnh báo chưa xử lý
+    //NOTE Lấy cảnh báo chưa acknowledged
     getUnacknowledgedAlerts() {
         return getDocs(query(
             alertsCollectionRef, 
@@ -288,7 +288,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         ));
     }
 
-    // Cập nhật trạng thái cảnh báo
+    //NOTE Đánh dấu alert đã acknowledged
     acknowledgeAlert(alertId) {
         const alertRef = doc(alertsCollectionRef, alertId);
         return updateDoc(alertRef, {
@@ -298,7 +298,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         });
     }
 
-    // Tạo cảnh báo nhiệt độ
+    //NOTE Tạo cảnh báo nhiệt độ (và gửi Discord/Telegram)
     createTemperatureAlert(machineData, temperature) {
         const alertData = {
             machineId: machineData.id,
@@ -328,7 +328,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             });
     }
 
-    // Tạo cảnh báo độ rung
+    //NOTE Tạo cảnh báo độ rung (và gửi Discord/Telegram)
     createVibrationAlert(machineData, vibration) {
         const alertData = {
             machineId: machineData.id,
@@ -358,7 +358,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             });
     }
 
-    // Tạo cảnh báo hiệu suất
+    //NOTE Tạo cảnh báo hiệu suất (gửi Discord)
     createEfficiencyAlert(machineData, efficiency) {
         const alertData = {
             machineId: machineData.id,
@@ -387,7 +387,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             });
     }
 
-    // Tạo cảnh báo trạng thái máy
+    //NOTE Tạo cảnh báo chuyển trạng thái máy
     createStatusAlert(machineData, oldStatus, newStatus) {
         const alertData = {
             machineId: machineData.id,
@@ -414,7 +414,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
             });
     }
 
-    // Kiểm tra và tạo cảnh báo dựa trên dữ liệu máy
+    //NOTE Kiểm tra dữ liệu máy và tạo alert tương ứng
     checkAndCreateAlerts(machineData) {
         const alerts = [];
 
@@ -431,7 +431,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         return Promise.all(alerts);
     }
 
-    // Lưu cảnh báo vào localStorage (fallback)
+    //NOTE Lưu alert vào localStorage (fallback) và gửi Discord/Telegram
     saveAlertToLocalStorage(alertData) {
         try {
             const existingAlerts = JSON.parse(localStorage.getItem('machineAlerts') || '[]');
@@ -457,7 +457,7 @@ ${emoji} <b>🚨 Cảnh báo ${statusText}: Độ rung máy</b>
         }
     }
 
-    // Lấy cảnh báo từ localStorage (fallback)
+    //NOTE Lấy alert từ localStorage (fallback)
     getAlertsFromLocalStorage() {
         try {
             const alerts = JSON.parse(localStorage.getItem('machineAlerts') || '[]');

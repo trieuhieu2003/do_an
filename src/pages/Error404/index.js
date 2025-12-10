@@ -1,3 +1,4 @@
+//NOTE Trang 404 hiển thị khi không tìm thấy route
 function Error404() {
     return (
         <>

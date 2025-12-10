@@ -16,7 +16,7 @@ import userService from '../service/user.service';
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
-// Firebase configuration
+//NOTE Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB1XAaS8jVlLTvTVzzFyasSA5Zjy3nkJL8",
   authDomain: "do-an-8c3e4.firebaseapp.com",
@@ -27,7 +27,7 @@ const firebaseConfig = {
   measurementId: "G-8HFSLW069S"
 };
 
-// Initialize Firebase
+//NOTE Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -39,7 +39,7 @@ const DefaultLayout = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check authentication state
+  //NOTE Kiểm tra trạng thái đăng nhập và tải thông tin người dùng
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -79,6 +79,7 @@ const DefaultLayout = ({ children }) => {
     return () => unsubscribe();
   }, [navigate]);
 
+  //NOTE Xử lý chuyển trang khi chọn menu bên trái
   const handleMenuClick = ({ key }) => {
     const selectedRoute = getRouteByKey(key);
     if (selectedRoute) {
@@ -86,6 +87,7 @@ const DefaultLayout = ({ children }) => {
     }
   };
 
+  //NOTE Đăng xuất tài khoản
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -96,7 +98,7 @@ const DefaultLayout = ({ children }) => {
     }
   };
 
-  // Show loading while checking authentication
+  //NOTE Hiển thị trạng thái loading khi đang kiểm tra đăng nhập
   if (loading) {
     return (
       <div style={{
@@ -111,11 +113,12 @@ const DefaultLayout = ({ children }) => {
     );
   }
 
-  // Redirect to login if not authenticated
+  //NOTE Chuyển hướng về đăng nhập nếu chưa xác thực
   if (!user) {
     return null;
   }
 
+  //NOTE Các tùy chọn trên menu người dùng (avatar)
   const userMenuItems = [
     {
       key: 'profile',
@@ -143,6 +146,7 @@ const DefaultLayout = ({ children }) => {
     },
   ];
 
+  //NOTE Xử lý hành động khi click vào menu người dùng
   const handleUserMenuClick = ({ key }) => {
     switch (key) {
       case 'profile':

@@ -15,7 +15,7 @@ import {
 import { getAuth } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
 
-// Firebase configuration
+//NOTE Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB1XAaS8jVlLTvTVzzFyasSA5Zjy3nkJL8",
   authDomain: "do-an-8c3e4.firebaseapp.com",
@@ -26,25 +26,25 @@ const firebaseConfig = {
   measurementId: "G-8HFSLW069S"
 };
 
-// Initialize Firebase
+//NOTE Khởi tạo Firebase app và services
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// User roles
+//NOTE Định nghĩa hằng số vai trò user
 export const USER_ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
   USER: 'user'
 };
 
-// User service class
+//NOTE Service quản lý user
 class UserService {
   constructor() {
     this.usersCollection = collection(db, 'users');
   }
 
-  // Tạo mới bản ghi người dùng (không tạo tài khoản Auth)
+  //NOTE Tạo bản ghi user (không tạo tài khoản Auth)
   async createUserRecord({ email, displayName, role, isActive }) {
     try {
       if (!email) {
@@ -73,7 +73,7 @@ class UserService {
     }
   }
 
-  // Tạo user mới khi đăng ký/đăng nhập lần đầu
+  //NOTE Tạo user mới khi đăng nhập/đăng ký lần đầu
   async createUser(userData) {
     try {
       const userRef = doc(this.usersCollection, userData.uid);
@@ -96,7 +96,7 @@ class UserService {
     }
   }
 
-  // Lấy thông tin user theo UID
+  //NOTE Lấy thông tin user theo UID
   async getUserByUid(uid) {
     try {
       const userRef = doc(this.usersCollection, uid);
@@ -113,7 +113,7 @@ class UserService {
     }
   }
 
-  // Lấy danh sách tất cả users
+  //NOTE Lấy danh sách user (sort theo createdAt desc)
   async getAllUsers() {
     try {
       const q = query(this.usersCollection, orderBy('createdAt', 'desc'));
@@ -134,7 +134,7 @@ class UserService {
     }
   }
 
-  // Lấy users theo role
+  //NOTE Lấy user theo role
   async getUsersByRole(role) {
     try {
       const q = query(
@@ -159,7 +159,7 @@ class UserService {
     }
   }
 
-  // Cập nhật role của user
+  //NOTE Cập nhật role user
   async updateUserRole(uid, newRole) {
     try {
       // Kiểm tra role hợp lệ
@@ -180,7 +180,7 @@ class UserService {
     }
   }
 
-  // Cập nhật thông tin user
+  //NOTE Cập nhật thông tin user
   async updateUser(uid, updateData) {
     try {
       const userRef = doc(this.usersCollection, uid);
@@ -196,7 +196,7 @@ class UserService {
     }
   }
 
-  // Xóa user (soft delete)
+  //NOTE Xóa mềm user (isActive=false, deletedAt)
   async deleteUser(uid) {
     try {
       const userRef = doc(this.usersCollection, uid);
@@ -212,7 +212,7 @@ class UserService {
     }
   }
 
-  // Cập nhật last login
+  //NOTE Cập nhật last login
   async updateLastLogin(uid) {
     try {
       const userRef = doc(this.usersCollection, uid);
@@ -224,7 +224,7 @@ class UserService {
     }
   }
 
-  // Kiểm tra quyền admin
+  //NOTE Kiểm tra quyền admin
   async isAdmin(uid) {
     try {
       const userResult = await this.getUserByUid(uid);
@@ -238,7 +238,7 @@ class UserService {
     }
   }
 
-  // Kiểm tra quyền manager hoặc admin
+  //NOTE Kiểm tra quyền manager hoặc admin
   async isManagerOrAdmin(uid) {
     try {
       const userResult = await this.getUserByUid(uid);

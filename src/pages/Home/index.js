@@ -31,6 +31,7 @@ import vibrationService from '../../service/vibration.service';
 const { Header, Sider, Content } = Layout;
 const { Title, Text } = Typography;
 
+//NOTE Dashboard tổng quan trang chủ
 const ManufacturingDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [loading, setLoading] = useState(true);
@@ -48,7 +49,7 @@ const ManufacturingDashboard = () => {
         production: 0
     });
 
-    // Format thời gian từ timestamp
+    //NOTE Format thời gian "bao lâu trước"
     const formatTimeAgo = (timestamp) => {
         if (!timestamp) return 'Không xác định';
         const date = timestamp?.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -64,7 +65,7 @@ const ManufacturingDashboard = () => {
         return `${diffDays} ngày trước`;
     };
 
-    // Format temperature last updated time
+    //NOTE Format thời gian cập nhật nhiệt độ
     const formatTemperatureTime = (time) => {
         if (!time) return 'Chưa cập nhật';
         
@@ -87,7 +88,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Format vibration last updated time
+    //NOTE Format thời gian cập nhật độ rung
     const formatVibrationTime = (time) => {
         if (!time) return 'Chưa cập nhật';
 
@@ -110,7 +111,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Load dữ liệu máy từ database
+    //NOTE Load dữ liệu máy, kèm nhiệt độ/độ rung và trạng thái
     const loadMachines = async () => {
         try {
             const querySnapshot = await machinesDataService.getAllMachines();
@@ -212,7 +213,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Đếm số lượng cảnh báo hôm nay từ database
+    //NOTE Đếm cảnh báo hôm nay (Firebase, fallback local)
     const countTodayAlerts = async () => {
         try {
             const querySnapshot = await alertService.getAllAlerts();
@@ -265,7 +266,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Load cảnh báo từ database
+    //NOTE Load danh sách cảnh báo gần đây (Firebase, fallback local)
     const loadAlerts = async () => {
         try {
             const querySnapshot = await alertService.getAllAlerts();
@@ -306,7 +307,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Load dữ liệu sản xuất (giả lập từ dữ liệu máy)
+    //NOTE Sinh dữ liệu sản xuất giả lập từ trạng thái máy
     const loadProductionData = (machines) => {
         const hours = ['6:00', '8:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
         const runningCount = machines.filter(m => m.status === 'running').length;
@@ -322,7 +323,7 @@ const ManufacturingDashboard = () => {
         return production;
     };
 
-    // Tính toán thống kê
+    //NOTE Tính toán thống kê tổng quan cho dashboard
     const calculateStats = async (machines, alertsData, productionDataArray = []) => {
         const runningMachines = machines.filter(m => m.status === 'running').length;
         const idleMachines = machines.filter(m => m.status === 'idle').length;
@@ -349,7 +350,7 @@ const ManufacturingDashboard = () => {
         });
     };
 
-    // Load tất cả dữ liệu
+    //NOTE Quy trình load tổng hợp toàn bộ dữ liệu
     const loadAllData = async () => {
         setLoading(true);
         try {
@@ -365,7 +366,7 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Cập nhật nhiệt độ và độ rung cho các máy hiện có
+    //NOTE Cập nhật nhiệt độ/độ rung mới nhất và thống kê theo chu kỳ
     const updateTemperaturesAndVibrations = async () => {
         try {
             // Lấy tất cả nhiệt độ và độ rung mới nhất
@@ -444,12 +445,12 @@ const ManufacturingDashboard = () => {
         }
     };
 
-    // Load dữ liệu khi component mount
+    //NOTE Hook mount: load toàn bộ dữ liệu lần đầu
     useEffect(() => {
         loadAllData();
     }, []);
 
-    // Cập nhật nhiệt độ và độ rung định kỳ (mỗi 5 giây)
+    //NOTE Hook interval 5s: cập nhật nhiệt độ/độ rung
     useEffect(() => {
         const interval = setInterval(() => {
             updateTemperaturesAndVibrations();
@@ -458,7 +459,7 @@ const ManufacturingDashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Cập nhật toàn bộ dữ liệu định kỳ (mỗi 30 giây)
+    //NOTE Hook interval 30s: load lại toàn bộ dữ liệu
     useEffect(() => {
         const interval = setInterval(() => {
             loadAllData();

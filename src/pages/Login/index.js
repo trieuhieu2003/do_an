@@ -35,7 +35,7 @@ import userService from '../../service/user.service';
 
 const { Title, Text } = Typography;
 
-// Firebase configuration
+//NOTE Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyB1XAaS8jVlLTvTVzzFyasSA5Zjy3nkJL8",
   authDomain: "do-an-8c3e4.firebaseapp.com",
@@ -46,7 +46,7 @@ const firebaseConfig = {
   measurementId: "G-8HFSLW069S"
 };
 
-// Initialize Firebase
+//NOTE Khởi tạo Firebase auth
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
@@ -55,6 +55,7 @@ const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
+  //NOTE Xử lý submit form đăng nhập email/password
   const onFinish = async (values) => {
     setLoading(true);
     try {
@@ -178,10 +179,12 @@ const Login = () => {
   //   }
   // };
 
+  //NOTE Thông báo placeholder quên mật khẩu
   const handleForgotPassword = () => {
     message.info('Tính năng quên mật khẩu sẽ được cập nhật sớm!');
   };
 
+  //NOTE Thông báo placeholder đăng ký
   const handleRegister = () => {
     message.info('Tính năng đăng ký sẽ được cập nhật sớm!');
   };

@@ -11,19 +11,22 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 
-// Collection Firestore cho kế hoạch bảo trì
+//NOTE Collection Firestore cho kế hoạch bảo trì
 const maintenancePlansCollectionRef = collection(db, "maintenancePlans");
 
 class maintenancePlansDataService {
+  //NOTE Lấy tất cả kế hoạch bảo trì
   getAllMaintenancePlans() {
     return getDocs(maintenancePlansCollectionRef);
   }
 
+  //NOTE Lấy kế hoạch theo id
   getMaintenancePlanById(id) {
     const planDoc = doc(db, "maintenancePlans", id);
     return getDoc(planDoc);
   }
 
+  //NOTE Thêm kế hoạch bảo trì mới
   addMaintenancePlan(newPlan) {
     return addDoc(maintenancePlansCollectionRef, {
       ...newPlan,
@@ -32,6 +35,7 @@ class maintenancePlansDataService {
     });
   }
 
+  //NOTE Cập nhật kế hoạch bảo trì
   updateMaintenancePlan(id, newData) {
     const planDoc = doc(db, "maintenancePlans", id);
     return updateDoc(planDoc, {
@@ -40,6 +44,7 @@ class maintenancePlansDataService {
     });
   }
 
+  //NOTE Xóa kế hoạch bảo trì
   deleteMaintenancePlan(id) {
     const planDoc = doc(db, "maintenancePlans", id);
     return deleteDoc(planDoc);
