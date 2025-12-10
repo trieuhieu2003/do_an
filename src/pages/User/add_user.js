@@ -10,6 +10,7 @@ import {
   message,
   Switch
 } from 'antd';
+import userService from '../../service/user.service';
 import {
   SaveOutlined,
   UserOutlined,
@@ -29,26 +30,33 @@ const AddUser = ({ onSuccess, onCancel }) => {
   const roles = [
     { value: 'admin', label: 'Quản trị viên', color: '#ff4d4f' },
     { value: 'manager', label: 'Quản lý', color: '#1890ff' },
-    { value: 'supervisor', label: 'Giám sát', color: '#52c41a' },
-    { value: 'operator', label: 'Vận hành', color: '#faad14' },
-    { value: 'technician', label: 'Kỹ thuật viên', color: '#722ed1' },
-    { value: 'viewer', label: 'Người xem', color: '#8c8c8c' }
+    { value: 'user', label: 'Người dùng', color: '#52c41a' },
   ];
 
   const onFinish = async (values) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('User data:', values);
-      message.success('Người dùng đã được thêm thành công!');
-      form.resetFields();
-      if (onSuccess) {
-        onSuccess(values);
+      const displayName = `${values.firstName?.trim() || ''} ${values.lastName?.trim() || ''}`.trim();
+      const payload = {
+        email: values.email,
+        displayName,
+        role: values.role,
+        isActive: values.status !== undefined ? !!values.status : true
+      };
+
+      const result = await userService.createUserRecord(payload);
+
+      if (result?.success) {
+        message.success('Người dùng đã được thêm thành công!');
+        form.resetFields();
+        if (onSuccess) {
+          onSuccess(result.user);
+        }
+      } else {
+        message.error('Không thể thêm người dùng');
       }
     } catch (error) {
-      message.error('Có lỗi xảy ra khi thêm người dùng!');
+      message.error(`Có lỗi xảy ra khi thêm người dùng: ${error.message || ''}`);
     } finally {
       setLoading(false);
     }
@@ -71,7 +79,7 @@ const AddUser = ({ onSuccess, onCancel }) => {
           <UserOutlined style={{ marginRight: '8px' }} />
           Thông Tin Cơ Bản
         </Title> */}
-        
+
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <Form.Item
@@ -116,12 +124,12 @@ const AddUser = ({ onSuccess, onCancel }) => {
                 {roles.map(role => (
                   <Option key={role.value} value={role.value}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ 
-                        width: 8, 
-                        height: 8, 
-                        borderRadius: '50%', 
-                        backgroundColor: role.color, 
-                        marginRight: 8 
+                      <div style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: role.color,
+                        marginRight: 8
                       }} />
                       {role.label}
                     </div>
@@ -140,8 +148,8 @@ const AddUser = ({ onSuccess, onCancel }) => {
               valuePropName="checked"
               initialValue={true}
             >
-              <Switch 
-                checkedChildren="Hoạt động" 
+              <Switch
+                checkedChildren="Hoạt động"
                 unCheckedChildren="Khóa"
                 defaultChecked
               />

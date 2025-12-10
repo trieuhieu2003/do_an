@@ -31,6 +31,7 @@ import {
   EyeInvisibleOutlined,
   EyeTwoTone
 } from '@ant-design/icons';
+import AddUser from './add_user';
 import userService, { USER_ROLES } from '../../service/user.service';
 import passwordService from '../../service/password.service';
 import { getAuth, sendPasswordResetEmail, updatePassword } from 'firebase/auth';
@@ -53,6 +54,7 @@ const User = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [passwordListModalVisible, setPasswordListModalVisible] = useState(false);
   const [passwordList, setPasswordList] = useState([]);
+  const [addModalVisible, setAddModalVisible] = useState(false);
 
   // Firebase auth
   const auth = getAuth();
@@ -160,45 +162,45 @@ const User = () => {
     try {
       // Sử dụng PasswordService để tạo mật khẩu mới
       const result = await passwordService.createNewPasswordForUser(selectedUser, newPassword);
-      
+
       if (result.success) {
         message.success(`Mật khẩu mới đã được tạo cho ${selectedUser.email}`);
         setNewPasswordModalVisible(false);
         setNewPassword('');
-        
-                 // Hiển thị thông tin mật khẩu với cảnh báo
-         Modal.info({
-           title: 'Mật khẩu mới đã được lưu',
-           content: (
-             <div>
-               <p><strong>Email:</strong> {selectedUser.email}</p>
-               <p><strong>Mật khẩu mới:</strong> {newPassword}</p>
-               <p><strong>Thời gian:</strong> {result.passwordInfo.timestamp}</p>
-               
-               <Alert
-                 message="⚠️ CẢNH BÁO QUAN TRỌNG"
-                 description="Mật khẩu này CHƯA được cập nhật trong Firebase! Người dùng vẫn cần sử dụng mật khẩu cũ để đăng nhập."
-                 type="warning"
-                 showIcon
-                 style={{ marginTop: 16 }}
-               />
-               
-               <Alert
-                 message="Hướng dẫn"
-                 description="Để thực sự thay đổi mật khẩu, hãy sử dụng Firebase Console hoặc gửi email reset password."
-                 type="info"
-                 showIcon
-                 style={{ marginTop: 16 }}
-               />
-             </div>
-           ),
-           width: 600,
-           okText: 'Đã hiểu'
-         });
+
+        // Hiển thị thông tin mật khẩu với cảnh báo
+        Modal.info({
+          title: 'Mật khẩu mới đã được lưu',
+          content: (
+            <div>
+              <p><strong>Email:</strong> {selectedUser.email}</p>
+              <p><strong>Mật khẩu mới:</strong> {newPassword}</p>
+              <p><strong>Thời gian:</strong> {result.passwordInfo.timestamp}</p>
+
+              <Alert
+                message="⚠️ CẢNH BÁO QUAN TRỌNG"
+                description="Mật khẩu này CHƯA được cập nhật trong Firebase! Người dùng vẫn cần sử dụng mật khẩu cũ để đăng nhập."
+                type="warning"
+                showIcon
+                style={{ marginTop: 16 }}
+              />
+
+              <Alert
+                message="Hướng dẫn"
+                description="Để thực sự thay đổi mật khẩu, hãy sử dụng Firebase Console hoặc gửi email reset password."
+                type="info"
+                showIcon
+                style={{ marginTop: 16 }}
+              />
+            </div>
+          ),
+          width: 600,
+          okText: 'Đã hiểu'
+        });
       } else {
         message.error('Không thể tạo mật khẩu mới');
       }
-      
+
     } catch (error) {
       message.error('Lỗi khi tạo mật khẩu mới: ' + error.message);
     } finally {
@@ -289,8 +291,8 @@ const User = () => {
       key: 'user',
       render: (_, record) => (
         <Space>
-          <Avatar 
-            src={record.photoURL} 
+          <Avatar
+            src={record.photoURL}
             icon={<UserOutlined />}
             style={{ backgroundColor: record.photoURL ? 'transparent' : '#1890ff' }}
           />
@@ -349,38 +351,38 @@ const User = () => {
       key: 'actions',
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="Xem chi tiết">
-            <Button 
-              type="text" 
-              icon={<EyeOutlined />} 
+          {/* <Tooltip title="Xem chi tiết">
+            <Button
+              type="text"
+              icon={<EyeOutlined />}
               size="small"
               onClick={() => handleEditUser(record)}
             />
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title="Chỉnh sửa">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
+            <Button
+              type="text"
+              icon={<EditOutlined />}
               size="small"
               onClick={() => handleEditUser(record)}
             />
           </Tooltip>
           <Tooltip title="Reset mật khẩu (Gửi email)">
-            <Button 
-              type="text" 
-              icon={<MailOutlined />} 
+            <Button
+              type="text"
+              icon={<MailOutlined />}
               size="small"
               onClick={() => showResetPasswordModal(record)}
             />
           </Tooltip>
-          <Tooltip title="Tạo mật khẩu mới">
+          {/* <Tooltip title="Tạo mật khẩu mới">
             <Button 
               type="text" 
               icon={<KeyOutlined />} 
               size="small"
               onClick={() => showNewPasswordModal(record)}
             />
-          </Tooltip>
+          </Tooltip> */}
           <Tooltip title="Xóa">
             <Popconfirm
               title="Bạn có chắc chắn muốn xóa người dùng này?"
@@ -389,10 +391,10 @@ const User = () => {
               okText="Có"
               cancelText="Không"
             >
-              <Button 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />} 
+              <Button
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
                 size="small"
               />
             </Popconfirm>
@@ -405,7 +407,7 @@ const User = () => {
   return (
     <div>
       <Title level={2}>Quản lý người dùng</Title>
-      
+
       {/* Statistics */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
         <Col span={6}>
@@ -463,20 +465,20 @@ const User = () => {
           </Col>
           <Col>
             <Space>
-              <Button 
-                icon={<ReloadOutlined />} 
+              <Button
+                icon={<ReloadOutlined />}
                 onClick={fetchUsers}
                 loading={loading}
               >
                 Làm mới
               </Button>
-              <Button 
+              {/* <Button 
                 icon={<KeyOutlined />}
                 onClick={showPasswordListModal}
               >
                 Xem mật khẩu
-              </Button>
-              <Button 
+              </Button> */}
+              {/* <Button 
                 icon={<PlusOutlined />}
                 onClick={() => {
                   passwordService.createDemoPasswords();
@@ -486,8 +488,8 @@ const User = () => {
                 size="small"
               >
                 Demo
-              </Button>
-              <Button 
+              </Button> */}
+              {/* <Button 
                 icon={<KeyOutlined />}
                 onClick={() => {
                   const instructions = passwordService.getPasswordChangeInstructions();
@@ -514,11 +516,11 @@ const User = () => {
                 size="small"
               >
                 Hướng dẫn
-              </Button>
-              <Button 
-                type="primary" 
+              </Button> */}
+              <Button
+                type="primary"
                 icon={<PlusOutlined />}
-                onClick={() => message.info('Tính năng thêm người dùng sẽ được cập nhật sớm!')}
+                onClick={() => setAddModalVisible(true)}
               >
                 Thêm người dùng
               </Button>
@@ -538,11 +540,29 @@ const User = () => {
             pageSize: 10,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} của ${total} người dùng`,
           }}
         />
       </Card>
+
+      {/* Edit User Modal */}
+      {/* Add User Modal */}
+      <Modal
+        title="Thêm người dùng"
+        open={addModalVisible}
+        onCancel={() => setAddModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <AddUser
+          onSuccess={() => {
+            setAddModalVisible(false);
+            fetchUsers();
+          }}
+          onCancel={() => setAddModalVisible(false)}
+        />
+      </Modal>
 
       {/* Edit User Modal */}
       <Modal
@@ -620,11 +640,11 @@ const User = () => {
             {selectedUser?.email}
           </Text>
         </div>
-        
+
         <div style={{ textAlign: 'center' }}>
           <Space>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<MailOutlined />}
               loading={resetPasswordLoading}
               onClick={() => handleResetPassword(selectedUser?.email)}
@@ -636,10 +656,10 @@ const User = () => {
             </Button>
           </Space>
         </div>
-        
+
         <div style={{ marginTop: 20, padding: 16, background: '#f6f8fa', borderRadius: 8 }}>
           <Text type="secondary" style={{ fontSize: 12 }}>
-            <strong>Lưu ý:</strong> Mật khẩu cũ sẽ bị vô hiệu hóa. 
+            <strong>Lưu ý:</strong> Mật khẩu cũ sẽ bị vô hiệu hóa.
             Người dùng cần kiểm tra email và làm theo hướng dẫn để tạo mật khẩu mới.
           </Text>
         </div>
@@ -686,7 +706,7 @@ const User = () => {
                   />
                 }
               />
-              <Button 
+              <Button
                 style={{ width: '120px' }}
                 onClick={generateRandomPassword}
               >
@@ -697,8 +717,8 @@ const User = () => {
 
           <div style={{ textAlign: 'center', marginTop: 24 }}>
             <Space>
-              <Button 
-                type="primary" 
+              <Button
+                type="primary"
                 icon={<KeyOutlined />}
                 loading={newPasswordLoading}
                 onClick={handleCreateNewPassword}
@@ -719,7 +739,7 @@ const User = () => {
             showIcon
             style={{ marginTop: 20 }}
           />
-          
+
           <Alert
             message="💡 Giải pháp thay thế"
             description="Để thực sự thay đổi mật khẩu: 1) Sử dụng Firebase Console, 2) Gửi email reset password, 3) Hoặc sử dụng Firebase Admin SDK."
@@ -755,22 +775,22 @@ const User = () => {
           </div>
         ) : (
           <div>
-                         <Alert
-               message="⚠️ CẢNH BÁO QUAN TRỌNG"
-               description="Các mật khẩu này CHƯA được cập nhật trong Firebase! Người dùng vẫn cần sử dụng mật khẩu cũ để đăng nhập."
-               type="warning"
-               showIcon
-               style={{ marginBottom: 16 }}
-             />
-             
-             <Alert
-               message="Thông tin mật khẩu"
-               description="Danh sách các mật khẩu mới đã được tạo cho người dùng. Đây chỉ là bản ghi để admin xem, không phải mật khẩu thực tế."
-               type="info"
-               showIcon
-               style={{ marginBottom: 16 }}
-             />
-            
+            <Alert
+              message="⚠️ CẢNH BÁO QUAN TRỌNG"
+              description="Các mật khẩu này CHƯA được cập nhật trong Firebase! Người dùng vẫn cần sử dụng mật khẩu cũ để đăng nhập."
+              type="warning"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+
+            <Alert
+              message="Thông tin mật khẩu"
+              description="Danh sách các mật khẩu mới đã được tạo cho người dùng. Đây chỉ là bản ghi để admin xem, không phải mật khẩu thực tế."
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+            />
+
             <Table
               dataSource={passwordList}
               rowKey={(record, index) => `${record.email}-${index}`}
@@ -809,15 +829,15 @@ const User = () => {
                 }
               ]}
             />
-            
-                         <div style={{ marginTop: 16, padding: 16, background: '#f6f8fa', borderRadius: 8 }}>
-               <Text type="secondary" style={{ fontSize: 12 }}>
-                 <strong>Lưu ý:</strong> Mật khẩu được lưu trong localStorage của trình duyệt. 
-                 Khi xóa dữ liệu trình duyệt hoặc đóng tab, thông tin này sẽ bị mất.
-                 <br />
-                 <strong>⚠️ QUAN TRỌNG:</strong> Đây chỉ là bản ghi để admin xem, không phải mật khẩu thực tế trong Firebase.
-               </Text>
-             </div>
+
+            <div style={{ marginTop: 16, padding: 16, background: '#f6f8fa', borderRadius: 8 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                <strong>Lưu ý:</strong> Mật khẩu được lưu trong localStorage của trình duyệt.
+                Khi xóa dữ liệu trình duyệt hoặc đóng tab, thông tin này sẽ bị mất.
+                <br />
+                <strong>⚠️ QUAN TRỌNG:</strong> Đây chỉ là bản ghi để admin xem, không phải mật khẩu thực tế trong Firebase.
+              </Text>
+            </div>
           </div>
         )}
       </Modal>
