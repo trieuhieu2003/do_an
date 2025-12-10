@@ -14,7 +14,9 @@ import {
     Alert,
     Row,
     Col,
-    Statistic
+    Statistic,
+    message,
+    Spin
 } from 'antd';
 import {
     SearchOutlined,
@@ -23,83 +25,109 @@ import {
     SettingOutlined,
     WarningOutlined,
     ClockCircleOutlined,
-    MoreOutlined
+    MoreOutlined,
+    ReloadOutlined
 } from '@ant-design/icons';
+import alertService from '../../service/alert.service';
+import machinesDataService from '../../service/machine.service';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const Alerts = () => {
-    const [alerts, setAlerts] = useState([
-        {
-            id: 1,
-            machine: 'Máy ép nhựa #1',
-            type: 'nhiệt độ',
-            status: 'critical',
-            value: '95°C',
-            threshold: '80°C',
-            time: '2 phút trước',
-            acknowledged: false,
-            area: 'Khu vực A',
-            machineId: 'M001'
-        },
-        {
-            id: 2,
-            machine: 'Băng tải chính',
-            type: 'tốc độ',
-            status: 'warning',
-            value: '120%',
-            threshold: '110%',
-            time: '5 phút trước',
-            acknowledged: true,
-            area: 'Khu vực B',
-            machineId: 'M002'
-        },
-        {
-            id: 3,
-            machine: 'Máy đóng gói #3',
-            type: 'áp suất',
-            status: 'critical',
-            value: '8.5 bar',
-            threshold: '7 bar',
-            time: '10 phút trước',
-            acknowledged: false,
-            area: 'Khu vực C',
-            machineId: 'M003'
-        },
-        {
-            id: 4,
-            machine: 'Hệ thống làm lạnh',
-            type: 'nhiệt độ',
-            status: 'warning',
-            value: '-12°C',
-            threshold: '-10°C',
-            time: '15 phút trước',
-            acknowledged: true,
-            area: 'Khu vực D',
-            machineId: 'M004'
-        },
-        {
-            id: 5,
-            machine: 'Máy trộn nguyên liệu',
-            type: 'rung động',
-            status: 'critical',
-            value: '4.8 mm/s',
-            threshold: '3.5 mm/s',
-            time: '20 phút trước',
-            acknowledged: false,
-            area: 'Khu vực E',
-            machineId: 'M005'
-        },
-    ]);
-
+    const [alerts, setAlerts] = useState([]);
+    const [machines, setMachines] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedFilter, setSelectedFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const acknowledgeAlert = (id) => {
-        setAlerts(alerts.map(alert =>
-            alert.id === id ? { ...alert, acknowledged: true } : alert
-        ));
+    // Load alerts from Firebase
+    const loadAlerts = async () => {
+        try {
+            setLoading(true);
+            console.log('Loading alerts from Firebase...');
+            const querySnapshot = await alertService.getAllAlerts();
+            const alertsData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate() || new Date(),
+                updatedAt: doc.data().updatedAt?.toDate() || new Date()
+            }));
+            console.log('Firebase alerts loaded:', alertsData.length);
+            setAlerts(alertsData);
+        } catch (error) {
+            console.error('Error loading alerts from Firebase:', error);
+            // Fallback to localStorage
+            try {
+                console.log('Falling back to localStorage...');
+                const localAlerts = await alertService.getAlertsFromLocalStorage();
+                console.log('localStorage alerts loaded:', localAlerts.length);
+                setAlerts(localAlerts);
+            } catch (localError) {
+                console.error('Error loading alerts from localStorage:', localError);
+                message.error('Không thể tải dữ liệu cảnh báo!');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Load machines data
+    const loadMachines = async () => {
+        try {
+            const querySnapshot = await machinesDataService.getAllMachines();
+            const machinesData = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                name: doc.data().machineName || 'Chưa có tên',
+                status: doc.data().status || 'inactive'
+            }));
+            setMachines(machinesData);
+        } catch (error) {
+            console.error('Error loading machines:', error);
+            message.error('Không thể tải dữ liệu máy!');
+        }
+    };
+
+    // Acknowledge alert
+    const acknowledgeAlert = async (alertId) => {
+        try {
+            await alertService.acknowledgeAlert(alertId);
+            setAlerts(alerts.map(alert =>
+                alert.id === alertId ? { ...alert, acknowledged: true } : alert
+            ));
+            message.success('Đã xác nhận cảnh báo!');
+        } catch (error) {
+            console.error('Error acknowledging alert:', error);
+            message.error('Không thể xác nhận cảnh báo!');
+        }
+    };
+
+    // Create temperature-only alerts based on machine data
+    const createMachineAlerts = async () => {
+        try {
+            for (const machine of machines) {
+                const normalizedMachine = {
+                    id: machine.id,
+                    name: machine.name || machine.machineName || 'Chưa có tên',
+                    machineType: machine.machineType || machine.type || 'other',
+                    location: machine.location || 'Chưa xác định'
+                };
+
+                const temperatureValue = typeof machine.temperature === 'number'
+                    ? machine.temperature
+                    : typeof machine.temperature === 'string'
+                        ? parseFloat(machine.temperature)
+                        : null;
+
+                if (temperatureValue !== null && temperatureValue > 80) {
+                    await alertService.createTemperatureAlert(normalizedMachine, temperatureValue);
+                }
+            }
+            await loadAlerts(); // Reload alerts after creating
+        } catch (error) {
+            console.error('Error creating machine alerts:', error);
+        }
     };
 
     const filteredAlerts = alerts.filter(alert => {
@@ -107,8 +135,9 @@ const Alerts = () => {
             (selectedFilter === 'critical' && alert.status === 'critical') ||
             (selectedFilter === 'warning' && alert.status === 'warning');
 
-        const matchesSearch = alert.machine.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            alert.type.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = (alert.machineName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (alert.type || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (alert.location || '').toLowerCase().includes(searchTerm.toLowerCase());
 
         return matchesFilter && matchesSearch;
     });
@@ -120,40 +149,28 @@ const Alerts = () => {
     const unacknowledgedAlerts = alerts.filter(alert => !alert.acknowledged).length;
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            // Cập nhật random
-            if (Math.random() > 0.7) {
-                setAlerts(prev => {
-                    const randomIndex = Math.floor(Math.random() * prev.length);
-                    const updated = [...prev];
-                    updated[randomIndex] = {
-                        ...updated[randomIndex],
-                        value: `${Math.floor(Math.random() * 10) + (updated[randomIndex].status === 'critical' ? 80 : 100)}${updated[randomIndex].type === 'nhiệt độ' ? '°C' : updated[randomIndex].type === 'áp suất' ? ' bar' : '%'}`
-                    };
-                    return updated;
-                });
-            }
+        // Load initial data
+        const loadData = async () => {
+            await loadMachines();
+            await loadAlerts();
+        };
+        loadData();
 
-            // Thêm alert mới
-            if (Math.random() > 0.9) {
-                const newAlert = {
-                    id: Date.now(),
-                    machine: `Máy ${['ép', 'đóng gói', 'trộn', 'cắt'][Math.floor(Math.random() * 4)]} #${Math.floor(Math.random() * 10) + 1}`,
-                    type: ['nhiệt độ', 'áp suất', 'tốc độ', 'rung động'][Math.floor(Math.random() * 4)],
-                    status: Math.random() > 0.5 ? 'critical' : 'warning',
-                    value: `${Math.floor(Math.random() * 10) + 80}${Math.random() > 0.5 ? '°C' : '%'}`,
-                    threshold: `${Math.floor(Math.random() * 10) + 70}${Math.random() > 0.5 ? '°C' : '%'}`,
-                    time: 'Vừa xảy ra',
-                    acknowledged: false,
-                    area: `Khu vực ${String.fromCharCode(65 + Math.floor(Math.random() * 5))}`,
-                    machineId: `M${String(Date.now()).slice(-3)}`
-                };
-                setAlerts(prev => [newAlert, ...prev]);
-            }
-        }, 5000);
+        // Set up real-time updates every 10 seconds
+        const interval = setInterval(async () => {
+            console.log('Auto-refreshing alerts...');
+            await loadAlerts();
+        }, 10000);
 
         return () => clearInterval(interval);
     }, []);
+
+    // Update alerts when machines data changes
+    useEffect(() => {
+        if (machines.length > 0) {
+            createMachineAlerts();
+        }
+    }, [machines]);
 
     const getStatusColor = (status) => {
         return status === 'critical' ? 'red' : 'orange';
@@ -189,8 +206,8 @@ const Alerts = () => {
     const columns = [
         {
             title: 'Máy',
-            dataIndex: 'machine',
-            key: 'machine',
+            dataIndex: 'machineName',
+            key: 'machineName',
             render: (text, record) => (
                 <Space>
                     <Avatar
@@ -198,8 +215,8 @@ const Alerts = () => {
                         style={{ backgroundColor: '#1890ff' }}
                     />
                     <div>
-                        <div style={{ fontWeight: 500 }}>{text}</div>
-                        <Text type="secondary" style={{ fontSize: '12px' }}>{record.area}</Text>
+                        <div style={{ fontWeight: 500 }}>{text || 'Chưa có tên'}</div>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>{record.location || 'Chưa có vị trí'}</Text>
                     </div>
                 </Space>
             ),
@@ -258,9 +275,30 @@ const Alerts = () => {
         },
         {
             title: 'Thời gian',
-            dataIndex: 'time',
-            key: 'time',
-            render: (text) => <Text type="secondary">{text}</Text>,
+            dataIndex: 'createdAt',
+            key: 'createdAt',
+            render: (createdAt) => {
+                if (!createdAt) return <Text type="secondary">Không xác định</Text>;
+                
+                const now = new Date();
+                const alertTime = new Date(createdAt);
+                const diffInMinutes = Math.floor((now - alertTime) / (1000 * 60));
+                
+                let timeText;
+                if (diffInMinutes < 1) {
+                    timeText = 'Vừa xảy ra';
+                } else if (diffInMinutes < 60) {
+                    timeText = `${diffInMinutes} phút trước`;
+                } else if (diffInMinutes < 1440) {
+                    const hours = Math.floor(diffInMinutes / 60);
+                    timeText = `${hours} giờ trước`;
+                } else {
+                    const days = Math.floor(diffInMinutes / 1440);
+                    timeText = `${days} ngày trước`;
+                }
+                
+                return <Text type="secondary">{timeText}</Text>;
+            },
         },
         {
             title: 'Hành động',
@@ -292,10 +330,19 @@ const Alerts = () => {
 
     return (
         <div style={{ padding: '24px', background: '#f0f2f5', minHeight: '100vh' }}>
-            <Title level={2} style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
-                Danh Sách Cảnh Báo
-            </Title>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <Title level={2} style={{ margin: 0 }}>
+                    <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: '8px' }} />
+                    Danh Sách Cảnh Báo
+                </Title>
+                <Button 
+                    icon={<ReloadOutlined />} 
+                    onClick={loadAlerts}
+                    loading={loading}
+                >
+                    Làm mới
+                </Button>
+            </div>
 
             {/* Statistics Cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
@@ -340,13 +387,22 @@ const Alerts = () => {
                     </Card>
                 </Col>
             </Row>
-
+            {/* System Status Alert */}
+            {unacknowledgedAlerts > 0 && (
+                <Alert
+                    message="Có cảnh báo chưa được xử lý"
+                    description={`Hiện có ${unacknowledgedAlerts} cảnh báo chưa được xác nhận. Vui lòng kiểm tra và xử lý kịp thời.`}
+                    type="warning"
+                    showIcon
+                    style={{ margin: '16px' }}
+                />
+            )}
             {/* Filters and Search */}
             <Card style={{ marginBottom: '24px' }}>
                 <Row gutter={[16, 16]} align="middle">
                     <Col xs={24} md={12}>
                         <Input
-                            placeholder="Tìm kiếm máy hoặc loại cảnh báo..."
+                            placeholder="Tìm kiếm theo tên máy, loại cảnh báo hoặc vị trí..."
                             prefix={<SearchOutlined />}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -369,33 +425,26 @@ const Alerts = () => {
 
             {/* Alerts Table */}
             <Card>
-                <Table
-                    columns={columns}
-                    dataSource={filteredAlerts}
-                    rowKey="id"
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showQuickJumper: true,
-                        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} cảnh báo`,
-                    }}
-                    rowClassName={(record) => !record.acknowledged ? 'unacknowledged-row' : ''}
-                    locale={{
-                        emptyText: 'Không có cảnh báo nào phù hợp'
-                    }}
-                />
+                <Spin spinning={loading}>
+                    <Table
+                        columns={columns}
+                        dataSource={filteredAlerts}
+                        rowKey="id"
+                        pagination={{
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} cảnh báo`,
+                        }}
+                        rowClassName={(record) => !record.acknowledged ? 'unacknowledged-row' : ''}
+                        locale={{
+                            emptyText: 'Không có cảnh báo nào phù hợp'
+                        }}
+                    />
+                </Spin>
             </Card>
 
-            {/* System Status Alert */}
-            {unacknowledgedAlerts > 0 && (
-                <Alert
-                    message="Có cảnh báo chưa được xử lý"
-                    description={`Hiện có ${unacknowledgedAlerts} cảnh báo chưa được xác nhận. Vui lòng kiểm tra và xử lý kịp thời.`}
-                    type="warning"
-                    showIcon
-                    style={{ marginTop: '16px' }}
-                />
-            )}
+
         </div>
     );
 };
